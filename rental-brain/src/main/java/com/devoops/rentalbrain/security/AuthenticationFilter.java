@@ -39,12 +39,12 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final Environment env;
     private final EmployeeCommandService employeeCommandService;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String,String> redisTemplate;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
                                 Environment env,
                                 EmployeeCommandService employeeCommandService,
-                                RedisTemplate redisTemplate) {
+                                RedisTemplate<String,String> redisTemplate) {
         // authenticationManager를 인지시킴
         super(authenticationManager);
         this.env = env;
@@ -85,7 +85,6 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         Claims claims = Jwts.claims().setSubject(id);
         claims.put("auth", roles);
 
-
         // 엑세스 토큰
         String accessToken = Jwts.builder()
                 .setClaims(claims)
@@ -94,24 +93,30 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .compact();
 
 //        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        log.info("accessToken : {}", accessToken);
-        response.addHeader("accessToken", accessToken);
+        log.info("Access-Token : {}", accessToken);
+        response.addHeader("Access-Token", accessToken);
 
 
         // 리프레쉬 토큰
-//        String refreshToken = Jwts.builder()
-//                .setSubject(id)
-//                .setExpiration(new java.util.Date(System.currentTimeMillis() + Long.parseLong(env.getProperty(("token.refresh_expiration_time")))))
-//                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.refresh_secret"))
-//                .compact();
-//        try{
-//            redisTemplate.opsForValue().set("RT:" + id, refreshToken, Long.parseLong(env.getProperty("token.refresh_expiration_time")), TimeUnit.MILLISECONDS);
-//        }catch (Exception e){
-//            log.info("redis 오류!");
-//        }
-//
-//        log.info("refreshToken : {}", refreshToken);
-//        response.addHeader("refreshToken", refreshToken);
+        String refreshToken = Jwts.builder()
+                .setSubject(id)
+                .setExpiration(new java.util.Date(System.currentTimeMillis() + Long.parseLong(env.getProperty(("token.refresh_expiration_time")))))
+                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.refresh_secret"))
+                .compact();
+        try{
+            // redis 저장
+            redisTemplate.opsForHash().putAll("RT:" + id, Map.of(
+                    "Refresh-Token", refreshToken,
+                    "Access-Token",accessToken));
+            redisTemplate.expire("RT:" + id, Long.parseLong(env.getProperty("token.refresh_expiration_time")), TimeUnit.MILLISECONDS);
+            response.addHeader("Refresh-Token", refreshToken);
+
+            log.info("redis 저장 완료");
+        }catch (Exception e){
+            log.info("redis 오류!");
+        }
+
+        log.info("Refresh-Token : {}", refreshToken);
 
 
 

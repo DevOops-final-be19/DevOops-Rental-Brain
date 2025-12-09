@@ -22,14 +22,14 @@ public class WebSecurity {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final JwtUtil jwtUtil;
     private final EmployeeCommandService employeeCommandService;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String,String> redisTemplate;
 
     @Autowired
     public WebSecurity(Environment env,
                        JwtAuthenticationProvider jwtAuthenticationProvider,
                        JwtUtil jwtUtil,
                        EmployeeCommandService employeeCommandService,
-                       RedisTemplate redisTemplate) {
+                       RedisTemplate<String,String> redisTemplate) {
         this.env = env;     // JWT Token의 payload에 만료시간 만들다가 추가
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
         this.jwtUtil = jwtUtil;
@@ -68,7 +68,7 @@ public class WebSecurity {
         http.addFilter(new AuthenticationFilter(authenticationManager(),env,employeeCommandService,redisTemplate));
 
         // JwtFilter를 통한 토큰 검증 필터 추가
-        http.addFilterBefore(new JwtFilter(jwtUtil),UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtFilter(jwtUtil,redisTemplate),UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

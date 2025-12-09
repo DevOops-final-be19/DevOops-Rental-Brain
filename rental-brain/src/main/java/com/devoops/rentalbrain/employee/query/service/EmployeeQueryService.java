@@ -20,5 +20,6 @@ public class EmployeeQueryService {
         return employeeQueryMapper.getUserAuth(empId,positionId).stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
+
     }
 }
