@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devoops.rentalbrain.employee.query.mapper.EmployeeQueryMapper">
+    <select id="getUserAuth" resultType="string">
+        SELECT
+            a.auth
+        FROM auth_list a
+        WHERE a.id IN (SELECT
+                           b.auth_id
+                       FROM employee_auth b
+                       WHERE emp_id = #{empId}
+                       UNION
+                       SELECT
+                           c.auth_id
+                       FROM emp_position_auth c
+                       WHERE position_id = #{positionId})
+    </select>
+
+</mapper>

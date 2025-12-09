@@ -1,6 +1,6 @@
 package com.devoops.rentalbrain.security;
 
-import com.kjandgo.securitydemo.member.command.service.MemberCommandService;
+import com.devoops.rentalbrain.employee.command.service.EmployeeCommandService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -17,13 +17,13 @@ import java.security.Key;
 @Component
 public class JwtUtil {
     private final Key key;
-    private final MemberCommandService memberCommandService;
+    private final EmployeeCommandService employeeCommandService;
 
-    public JwtUtil(@Value("${token.secret}")String key,
-                   MemberCommandService memberCommandService){
+    public JwtUtil(@Value("${token.access_secret}")String key,
+                   EmployeeCommandService employeeCommandService){
         byte[] keyBytes = Decoders.BASE64.decode(key);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.memberCommandService = memberCommandService;
+        this.employeeCommandService = employeeCommandService;
     }
 
     public void validateToken(String token) throws io.jsonwebtoken.security.SecurityException,
@@ -41,15 +41,10 @@ public class JwtUtil {
         Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
 
         // 토큰에 들어있던 member_id로 유효성 검증
-        UserDetails userDetails = memberCommandService.loadUserByUsername(claims.getSubject());
+        UserDetails userDetails = employeeCommandService.loadUserByUsername(claims.getSubject());
 //        log.info("userDetails: {}",userDetails.getUsername());
 //        log.info("userDetails: {}",userDetails.getAuthorities());
 
-        // 토큰에 있는 권한 추출
-
-
-
-        //
 
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

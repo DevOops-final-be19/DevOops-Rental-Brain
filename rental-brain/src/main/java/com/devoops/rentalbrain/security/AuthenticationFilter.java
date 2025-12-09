@@ -1,9 +1,9 @@
 package com.devoops.rentalbrain.security;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kjandgo.securitydemo.member.command.dto.LoginDTO;
-import com.kjandgo.securitydemo.member.command.service.MemberCommandService;
+import com.devoops.rentalbrain.employee.command.dto.LoginDTO;
+import com.devoops.rentalbrain.employee.command.dto.UserImpl;
+import com.devoops.rentalbrain.employee.command.service.EmployeeCommandService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,30 +21,34 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final Environment env;
-    private final MemberCommandService memberCommandService;
+    private final EmployeeCommandService employeeCommandService;
     private final RedisTemplate redisTemplate;
 
     public AuthenticationFilter(AuthenticationManager authenticationManager,
                                 Environment env,
-                                MemberCommandService memberCommandService,
+                                EmployeeCommandService employeeCommandService,
                                 RedisTemplate redisTemplate) {
         // authenticationManager를 인지시킴
         super(authenticationManager);
         this.env = env;
-        this.memberCommandService = memberCommandService;
+        this.employeeCommandService = employeeCommandService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -56,7 +60,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             log.info("attemptAuthentication: credential={}", credential);
 
             return getAuthenticationManager().authenticate(
-                    new UsernamePasswordAuthenticationToken(credential.getMember_id(), credential.getMember_pw(), new ArrayList<>()));
+                    new UsernamePasswordAuthenticationToken(credential.getEmpId(), credential.getPwd(), new ArrayList<>()));
         } catch (IOException e) {
             log.info("attemptAuthentication 에서 오류");
             throw new RuntimeException(e);
@@ -86,7 +90,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setExpiration(new java.util.Date(System.currentTimeMillis() + Long.parseLong(env.getProperty(("token.access_expiration_time")))))
-                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
+                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.access_secret"))
                 .compact();
 
 //        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -95,41 +99,47 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
 
         // 리프레쉬 토큰
-        String refreshToken = Jwts.builder()
-                .setSubject(id)
-                .setExpiration(new java.util.Date(System.currentTimeMillis() + Long.parseLong(env.getProperty(("token.refresh_expiration_time")))))
-                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.secret"))
-                .compact();
-        try{
-            redisTemplate.opsForValue().set("RT:" + id, refreshToken, Duration.ofDays(1));
-        }catch (Exception e){
-            log.info("redis 오류!");
-        }
+//        String refreshToken = Jwts.builder()
+//                .setSubject(id)
+//                .setExpiration(new java.util.Date(System.currentTimeMillis() + Long.parseLong(env.getProperty(("token.refresh_expiration_time")))))
+//                .signWith(SignatureAlgorithm.HS512, env.getProperty("token.refresh_secret"))
+//                .compact();
+//        try{
+//            redisTemplate.opsForValue().set("RT:" + id, refreshToken, Long.parseLong(env.getProperty("token.refresh_expiration_time")), TimeUnit.MILLISECONDS);
+//        }catch (Exception e){
+//            log.info("redis 오류!");
+//        }
+//
+//        log.info("refreshToken : {}", refreshToken);
+//        response.addHeader("refreshToken", refreshToken);
 
-        log.info("refreshToken : {}", refreshToken);
-        response.addHeader("refreshToken", refreshToken);
+
 
         // 성공 객체 반환
-//        UserImpl user = (UserImpl) authResult.getPrincipal();
-//        Map<String, Object> responseBody = new LinkedHashMap<>();
-//        responseBody.put("success", "로그인 성공");
-//        responseBody.put("id", user.getId());
-//        responseBody.put("memberId", user.getMemberId());
-//        responseBody.put("email", user.getEmail());
-//        responseBody.put("name", user.getName());
-//        responseBody.put("birth", user.getBirth());
-//        responseBody.put("gender", user.getGender());
-//        responseBody.put("signUpDate", user.getSignUpDate());
-//        responseBody.put("roles", roles);
+        UserImpl user = (UserImpl) authResult.getPrincipal();
+        Map<String, Object> responseBody = new LinkedHashMap<>();
+        responseBody.put("success", "로그인 성공");
+        responseBody.put("id", user.getId());
+        responseBody.put("empId", user.getEmpId());
+        responseBody.put("phone", user.getPhone());
+        responseBody.put("email", user.getEmail());
+        responseBody.put("addr", user.getAddr());
+        responseBody.put("gender", user.getGender());
+        responseBody.put("status", user.getStatus());
+        responseBody.put("dept", user.getDept());
+        responseBody.put("hireDate", user.getHireDate());
+        responseBody.put("resignDate", user.getResignDate());
+        responseBody.put("positionId", user.getPositionId());
+        responseBody.put("roles", roles);
 
         // Jackson으로 JSON 변환
-//        ObjectMapper mapper = new ObjectMapper();
-//        String json = mapper.writeValueAsString(responseBody);
-//
-//        response.setStatus(HttpServletResponse.SC_OK);
-//        response.setCharacterEncoding("UTF-8");
-//        response.setContentType("application/json;charset=UTF-8");
-//        response.getWriter().write(json);
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(responseBody);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(json);
 
         // 로그인 이력 저장
         String ipAddress = getClientIp(request);

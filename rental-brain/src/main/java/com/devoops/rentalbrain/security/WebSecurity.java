@@ -1,6 +1,6 @@
 package com.devoops.rentalbrain.security;
 
-import com.kjandgo.securitydemo.member.command.service.MemberCommandService;
+import com.devoops.rentalbrain.employee.command.service.EmployeeCommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,19 +21,19 @@ public class WebSecurity {
     private Environment env;
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final JwtUtil jwtUtil;
-    private final MemberCommandService memberCommandService;
+    private final EmployeeCommandService employeeCommandService;
     private final RedisTemplate redisTemplate;
 
     @Autowired
     public WebSecurity(Environment env,
                        JwtAuthenticationProvider jwtAuthenticationProvider,
                        JwtUtil jwtUtil,
-                       MemberCommandService memberCommandService,
+                       EmployeeCommandService employeeCommandService,
                        RedisTemplate redisTemplate) {
         this.env = env;     // JWT Token의 payload에 만료시간 만들다가 추가
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;
         this.jwtUtil = jwtUtil;
-        this.memberCommandService = memberCommandService;
+        this.employeeCommandService = employeeCommandService;
         this.redisTemplate = redisTemplate;
     }
 
@@ -49,7 +49,7 @@ public class WebSecurity {
 
         http.authorizeHttpRequests(authz ->
                                    authz
-//                                           .requestMatchers("/**").permitAll()        // 개발시에는 주석 풀고 진행
+                                           .requestMatchers("/**").permitAll()        // 개발시에는 주석 풀고 진행
                                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                                         .requestMatchers("/member/customerread").hasAuthority("CUSTOMER_READ")
                                         .requestMatchers("/member/customerwrite").hasAuthority("CUSTOMER_WRITE")
@@ -65,7 +65,7 @@ public class WebSecurity {
 
 
         // authenticationFilter를 추가하는 과정
-        http.addFilter(new AuthenticationFilter(authenticationManager(),env,memberCommandService,redisTemplate));
+        http.addFilter(new AuthenticationFilter(authenticationManager(),env,employeeCommandService,redisTemplate));
 
         // JwtFilter를 통한 토큰 검증 필터 추가
         http.addFilterBefore(new JwtFilter(jwtUtil),UsernamePasswordAuthenticationFilter.class);

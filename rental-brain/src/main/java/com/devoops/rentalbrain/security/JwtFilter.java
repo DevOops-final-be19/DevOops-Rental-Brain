@@ -41,6 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // 토큰 유효성 검사
         try{
             jwtUtil.validateToken(token);
+            // 토큰에 있는 권한 추출
             Authentication authentication = jwtUtil.getAuthentication(token);
             log.info("authentication 내용 : {}",authentication.toString());
             SecurityContextHolder.getContext().setAuthentication(authentication);
