@@ -23,11 +23,15 @@ public class EmployeeQueryServiceImpl implements EmployeeQueryService {
         return employeeQueryMapper.getUserAuth(empId,positionId).stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
-
     }
 
     public EmployeeInfoDTO getEmpInfoPage(String empId) {
         log.info("{}",empId);
         return employeeQueryMapper.getEmpInfoPage(empId);
+    }
+
+    @Override
+    public List<EmployeeInfoDTO> getEmpList() {
+        return employeeQueryMapper.getEmpList();
     }
 }

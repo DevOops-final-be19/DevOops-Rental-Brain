@@ -126,6 +126,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         responseBody.put("success", "로그인 성공");
         responseBody.put("id", user.getId());
         responseBody.put("empId", user.getEmpId());
+        responseBody.put("name", user.getName());
         responseBody.put("phone", user.getPhone());
         responseBody.put("email", user.getEmail());
         responseBody.put("addr", user.getAddr());

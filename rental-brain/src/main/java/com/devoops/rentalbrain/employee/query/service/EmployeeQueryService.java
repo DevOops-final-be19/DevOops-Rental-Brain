@@ -9,4 +9,6 @@ public interface EmployeeQueryService {
     List<GrantedAuthority> getUserAuth(Long empId, Long positionId);
 
     EmployeeInfoDTO getEmpInfoPage(String empId);
+
+    List<EmployeeInfoDTO> getEmpList();
 }

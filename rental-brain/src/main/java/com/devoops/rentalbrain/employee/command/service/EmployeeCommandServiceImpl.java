@@ -74,6 +74,7 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         userImpl.setUserInfo(new UserDetailInfoDTO(
                         employee.getId(),
                         employee.getEmpId(),
+                        employee.getName(),
                         employee.getPhone(),
                         employee.getEmail(),
                         employee.getAddr(),
@@ -98,6 +99,7 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         Employee employee = new Employee();
         employee.setEmpId(signUpDTO.getEmpId());
         employee.setPwd(bCryptPasswordEncoder.encode(signUpDTO.getPwd()));
+        employee.setName(signUpDTO.getName());
         employee.setPhone(signUpDTO.getPhone());
         employee.setEmail(signUpDTO.getEmail());
         employee.setAddr(signUpDTO.getAddr());

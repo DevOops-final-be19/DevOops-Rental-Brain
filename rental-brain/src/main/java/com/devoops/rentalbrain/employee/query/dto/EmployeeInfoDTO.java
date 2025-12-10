@@ -10,6 +10,7 @@ import lombok.*;
 public class EmployeeInfoDTO {
     private Long id;
     private String emp_id;
+    private String name;
     private String phone;
     private String email;
     private String addr;

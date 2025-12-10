@@ -11,4 +11,6 @@ public interface EmployeeQueryMapper {
     List<String> getUserAuth(Long empId, Long positionId);
 
     EmployeeInfoDTO getEmpInfoPage(String empId);
+
+    List<EmployeeInfoDTO> getEmpList();
 }

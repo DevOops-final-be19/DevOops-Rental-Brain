@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/emp")
 @Slf4j
@@ -24,14 +26,9 @@ public class EmployeeQueryController {
     }
 
     @GetMapping("/admin/emplist")
-    public ResponseEntity<EmployeeInfoDTO> getEmpList(){
-        EmployeeInfoDTO employeeInfoDTO = new EmployeeInfoDTO();
+    public ResponseEntity<List<EmployeeInfoDTO>> getEmpList(){
+        List<EmployeeInfoDTO> employeeInfoDTO = employeeQueryService.getEmpList();
         return ResponseEntity.ok().body(employeeInfoDTO);
     }
 
-    @GetMapping("/admin/emppage")
-    public ResponseEntity<EmployeeInfoDTO> getEmpInfo(){
-        EmployeeInfoDTO employeeInfoDTO = new EmployeeInfoDTO();
-        return ResponseEntity.ok().body(employeeInfoDTO);
-    }
 }

@@ -1,16 +1,17 @@
-package com.devoops.rentalbrain.employee.command.dto;
+package com.devoops.rentalbrain.employee.query.dto;
 
-import com.devoops.rentalbrain.employee.query.dto.PositionDTO;
 import lombok.*;
+
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
-public class UserDetailInfoDTO {
+public class EmployeeListDTO {
     private Long id;
-    private String empId;
+    private String emp_id;
     private String name;
     private String phone;
     private String email;
@@ -19,7 +20,8 @@ public class UserDetailInfoDTO {
     private Character gender;
     private Character status;
     private String dept;
-    private String hireDate;
-    private String resignDate;
-    private Long positionId;
+    private String hire_date;
+    private PositionDTO position;
+    private List<PositionAuthDTO> empPositionAuth;
+    private List<EmpAuthDTO> empAuth;
 }
