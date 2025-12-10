@@ -51,11 +51,11 @@ public class JwtFilter extends OncePerRequestFilter {
             Authentication authentication = jwtUtil.getAuthentication(accessToken);
             log.info("authentication 내용 : {}",authentication.toString());
             // 토큰 서버측 검사(redis), 나중에 넣음
-            if(redisTemplate.opsForValue().get("BL:"+accessToken) != null){
-                log.info("유효하지 않은 JWT Token(BL)");
-                filterChain.doFilter(request,response);
-                return;
-            }
+//            if(redisTemplate.opsForValue().get("BL:"+accessToken) != null){
+//                log.info("유효하지 않은 JWT Token(BL)");
+//                filterChain.doFilter(request,response);
+//                return;
+//            }
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
