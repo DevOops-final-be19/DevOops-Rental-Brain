@@ -19,8 +19,4 @@ public class EmpPositionAuth {
     @Column
     private String authId;
 
-    public EmpPositionAuth(String positionId, String authId) {
-        this.positionId = positionId;
-        this.authId = authId;
-    }
 }

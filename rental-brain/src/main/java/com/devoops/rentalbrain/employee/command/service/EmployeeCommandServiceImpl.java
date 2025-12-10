@@ -9,6 +9,7 @@ import com.devoops.rentalbrain.employee.query.service.EmployeeQueryService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -56,7 +57,7 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         if (employee == null) throw new UsernameNotFoundException("회원정보가 존재하지 않습니다.");
 
         // 정지된 회원
-//        if (member.getUser_state() == 'S') throw new LockedException("정지된 회원입니다.");
+        if (employee.getStatus() == 'Q') throw new LockedException("퇴사한 직원입니다.");
 
         // 5회 이상 로그인 시도
 
