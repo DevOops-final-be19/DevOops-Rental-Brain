@@ -2,6 +2,7 @@ package com.devoops.rentalbrain.employee.command.service;
 
 
 import com.devoops.rentalbrain.employee.command.dto.EmployeeAuthDTO;
+import com.devoops.rentalbrain.employee.command.dto.EmployeeInfoModifyDTO;
 import com.devoops.rentalbrain.employee.command.dto.LogoutDTO;
 import com.devoops.rentalbrain.employee.command.dto.SignUpDTO;
 import com.devoops.rentalbrain.employee.command.entity.EmployeeAuth;
@@ -17,4 +18,6 @@ public interface EmployeeCommandService extends UserDetailsService {
     void modifyAuth(List<EmployeeAuthDTO> empPositionAuthDTO);
 
     void saveLoginHistory(Long id, String ipAddress, char y);
+
+    void modifyEmpInfo(EmployeeInfoModifyDTO employeeInfoModifyDTO);
 }

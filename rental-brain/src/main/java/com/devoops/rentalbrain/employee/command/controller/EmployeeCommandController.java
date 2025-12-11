@@ -2,16 +2,19 @@ package com.devoops.rentalbrain.employee.command.controller;
 
 
 import com.devoops.rentalbrain.employee.command.dto.EmployeeAuthDTO;
+import com.devoops.rentalbrain.employee.command.dto.EmployeeInfoModifyDTO;
 import com.devoops.rentalbrain.employee.command.dto.LogoutDTO;
 import com.devoops.rentalbrain.employee.command.dto.SignUpDTO;
 import com.devoops.rentalbrain.employee.command.entity.EmployeeAuth;
 import com.devoops.rentalbrain.employee.command.service.EmployeeCommandService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/emp")
 public class EmployeeCommandController {
@@ -28,7 +31,12 @@ public class EmployeeCommandController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO){
+        try{
         employeeCommandService.signup(signUpDTO);
+        }catch (Exception e){
+            log.info("");
+            return ResponseEntity.ok().body(e.getMessage());
+        }
         return ResponseEntity.ok().build();
     }
 
@@ -45,8 +53,12 @@ public class EmployeeCommandController {
     }
 
     @PutMapping("/modify")
-    public ResponseEntity<?> modifyEmpInfo(){
-        employeeCommandService.modifyEmpInfo();
+    public ResponseEntity<?> modifyEmpInfo(@RequestBody EmployeeInfoModifyDTO employeeInfoModifyDTO){
+        try {
+            employeeCommandService.modifyEmpInfo(employeeInfoModifyDTO);
+        }catch (Exception e){
+            return ResponseEntity.ok().body(e.getMessage());
+        }
         return ResponseEntity.ok().body("Done");
     }
 }

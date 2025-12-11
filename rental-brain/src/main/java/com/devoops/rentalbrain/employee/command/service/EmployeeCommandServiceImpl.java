@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -97,6 +98,9 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
     @Override
     @Transactional
     public void signup(SignUpDTO signUpDTO) {
+        if(employeeCommandRepository.existsByEmpIdOrEmail(signUpDTO.getEmpId(),signUpDTO.getEmail())){
+            throw new RuntimeException("이미 존재하는 아이디 혹은 이메일 번호 입니다.");
+        }
         Employee employee = new Employee();
         employee.setEmpId(signUpDTO.getEmpId());
         employee.setPwd(bCryptPasswordEncoder.encode(signUpDTO.getPwd()));
@@ -173,5 +177,35 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         loginHistory.setLoginIp(ipAddress);
         loginHistory.setEmpId(id);
         loginHistoryCommandRepository.save(loginHistory);
+    }
+
+    @Override
+    @Transactional
+    public void modifyEmpInfo(EmployeeInfoModifyDTO employeeInfoModifyDTO) {
+        UserImpl user = (UserImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(!user.getEmpId().equals(employeeInfoModifyDTO.getEmpId())) {
+            throw new NullPointerException("잘못된 접근입니다.");
+        }
+        Employee employee = employeeCommandRepository.findByEmpId(employeeInfoModifyDTO.getEmpId());
+
+        if(employeeCommandRepository.existsByEmail(employeeInfoModifyDTO.getEmail())) {
+            throw new RuntimeException("이미 존재하는 이메일입니다.");
+        }
+        modifyInfo(employee,employeeInfoModifyDTO);
+    }
+
+    private void modifyInfo(Employee employee, EmployeeInfoModifyDTO employeeInfoModifyDTO) {
+        if(!employeeInfoModifyDTO.getName().equals(employee.getName())) {
+            employee.setName(employeeInfoModifyDTO.getName());
+        }
+        if(!employeeInfoModifyDTO.getPhone().equals(employee.getPhone())) {
+            employee.setPhone(employeeInfoModifyDTO.getPhone());
+        }
+        if(!employeeInfoModifyDTO.getEmail().equals(employee.getEmail())) {
+            employee.setEmail(employeeInfoModifyDTO.getEmail());
+        }
+        if(!employeeInfoModifyDTO.getAddr().equals(employee.getAddr())) {
+            employee.setAddr(employeeInfoModifyDTO.getAddr());
+        }
     }
 }
