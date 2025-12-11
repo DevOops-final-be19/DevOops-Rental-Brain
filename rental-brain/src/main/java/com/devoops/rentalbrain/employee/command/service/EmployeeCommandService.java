@@ -19,4 +19,6 @@ public interface EmployeeCommandService extends UserDetailsService {
     void modifyEmpInfo(EmployeeInfoModifyDTO employeeInfoModifyDTO);
 
     void modifyEmpInfoByAdmin(EmployeeInfoModifyByAdminDTO employeeInfoModifyByAdminDTO);
+
+    void modifyEmpPwd(EmployeePasswordModifyDTO employeePasswordModifyDTO);
 }

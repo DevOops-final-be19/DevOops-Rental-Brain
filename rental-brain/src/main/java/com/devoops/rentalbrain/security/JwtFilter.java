@@ -30,6 +30,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+        if (path.equals("/auth/validate")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 헤더에서 Authorization Token 추출
         String authorizationHeader = request.getHeader("Authorization");
 

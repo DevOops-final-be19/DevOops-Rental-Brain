@@ -207,6 +207,24 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         modifyInfoByAdmin(employee,employeeInfoModifyByAdminDTO);
     }
 
+    @Override
+    @Transactional
+    public void modifyEmpPwd(EmployeePasswordModifyDTO employeePasswordModifyDTO) {
+        UserImpl user = (UserImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if(!user.getEmpId().equals(employeePasswordModifyDTO.getEmpId())) {
+            throw new RuntimeException("잘못된 접근입니다.");
+        }
+
+        Employee employee = employeeCommandRepository.findByEmpId(employeePasswordModifyDTO.getEmpId());
+
+        if(!bCryptPasswordEncoder.matches(employeePasswordModifyDTO.getPwd(),employee.getPwd())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        }
+
+        employee.setPwd(bCryptPasswordEncoder.encode(employeePasswordModifyDTO.getModifiedPwd()));
+    }
+
     private void modifyInfoByAdmin(Employee employee, EmployeeInfoModifyByAdminDTO employeeInfoModifyByAdminDTO) {
         if(!bCryptPasswordEncoder.encode(employeeInfoModifyByAdminDTO.getPwd()).equals(employee.getPwd())) {
             employee.setPwd(bCryptPasswordEncoder.encode(employeeInfoModifyByAdminDTO.getPwd()));

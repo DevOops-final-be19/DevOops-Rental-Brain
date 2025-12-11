@@ -68,4 +68,14 @@ public class EmployeeCommandController {
         }
         return ResponseEntity.ok().body("Done");
     }
+
+    @PutMapping("/pwdmodify")
+    public ResponseEntity<?> modifyEmpPwd(@RequestBody EmployeePasswordModifyDTO employeePasswordModifyDTO){
+        try {
+            employeeCommandService.modifyEmpPwd(employeePasswordModifyDTO);
+        }catch (Exception e){
+            return ResponseEntity.ok().body(e.getMessage());
+        }
+        return ResponseEntity.ok().body("Done");
+    }
 }
