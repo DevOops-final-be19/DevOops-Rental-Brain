@@ -22,6 +22,5 @@ public class EmployeeListDTO {
     private String dept;
     private String hire_date;
     private PositionDTO position;
-    private List<PositionAuthDTO> empPositionAuth;
     private List<EmpAuthDTO> empAuth;
 }

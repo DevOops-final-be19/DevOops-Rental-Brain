@@ -52,7 +52,7 @@ public class WebSecurity {
                                            .requestMatchers("/**").permitAll()        // 개발시에는 주석 풀고 진행
                                         .requestMatchers(HttpMethod.GET, "/health").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
-                                        .requestMatchers(HttpMethod.POST, "/emp/auth/modify").hasAuthority("ADMIN_MANAGE")
+                                        .requestMatchers(HttpMethod.POST, "/emp/admin/auth/modify").hasAuthority("ADMIN_MANAGE")
                                         .anyRequest()
                                         .authenticated()
                 )

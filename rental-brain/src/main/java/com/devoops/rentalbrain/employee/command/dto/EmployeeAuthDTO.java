@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
-public class EmpPositionAuthDTO {
-    private String positionId;
-    private String authId;
+public class EmployeeAuthDTO {
+    private Long auth_id;
+    private Long emp_id;
 }

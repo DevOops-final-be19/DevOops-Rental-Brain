@@ -6,9 +6,9 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.List;
 
 public interface EmployeeQueryService {
-    List<GrantedAuthority> getUserAuth(Long empId, Long positionId);
+    List<GrantedAuthority> getUserAuth(Long empId);
 
-    EmployeeInfoDTO getEmpInfoPage(String empId);
+    EmployeeInfoDTO getEmpInfoPage();
 
     List<EmployeeInfoDTO> getEmpList();
 }

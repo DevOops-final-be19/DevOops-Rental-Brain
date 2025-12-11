@@ -9,6 +9,6 @@ import lombok.*;
 @ToString
 public class EmpAuthDTO {
     private Long employee_auth_id;
-    private Long ea_auth_id;
-    private Long ea_user_id;
+    private Long auth_id;
+    private Long emp_id;
 }

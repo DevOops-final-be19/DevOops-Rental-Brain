@@ -1,9 +1,10 @@
 package com.devoops.rentalbrain.employee.command.controller;
 
 
-import com.devoops.rentalbrain.employee.command.dto.EmpPositionAuthDTO;
+import com.devoops.rentalbrain.employee.command.dto.EmployeeAuthDTO;
 import com.devoops.rentalbrain.employee.command.dto.LogoutDTO;
 import com.devoops.rentalbrain.employee.command.dto.SignUpDTO;
+import com.devoops.rentalbrain.employee.command.entity.EmployeeAuth;
 import com.devoops.rentalbrain.employee.command.service.EmployeeCommandService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,15 @@ public class EmployeeCommandController {
         return ResponseEntity.ok().body("로그아웃 완료");
     }
 
-    @PutMapping("/auth/modify")
-    public ResponseEntity<?> modifyAuth(@RequestBody List<EmpPositionAuthDTO> empPositionAuthDTO){
-        employeeCommandService.modifyAuth(empPositionAuthDTO);
+    @PutMapping("/admin/auth/modify")
+    public ResponseEntity<?> modifyAuth(@RequestBody List<EmployeeAuthDTO> employeeAuthDTO){
+        employeeCommandService.modifyAuth(employeeAuthDTO);
+        return ResponseEntity.ok().body("Done");
+    }
+
+    @PutMapping("/modify")
+    public ResponseEntity<?> modifyEmpInfo(){
+        employeeCommandService.modifyEmpInfo();
         return ResponseEntity.ok().body("Done");
     }
 }

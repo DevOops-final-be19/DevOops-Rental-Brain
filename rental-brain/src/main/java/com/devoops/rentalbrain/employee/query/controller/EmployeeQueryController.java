@@ -18,10 +18,13 @@ public class EmployeeQueryController {
         this.employeeQueryService = employeeQueryService;
     }
 
-    @GetMapping("/mypage/{empId}")
-    public ResponseEntity<EmployeeInfoDTO> getEmpInfoPage(@PathVariable String empId) {
-        EmployeeInfoDTO employeeInfoDTO = employeeQueryService.getEmpInfoPage(empId);
-        log.info(employeeInfoDTO.toString());
+    @GetMapping("/mypage")
+    public ResponseEntity<?> getEmpInfoPage() {
+        EmployeeInfoDTO employeeInfoDTO = employeeQueryService.getEmpInfoPage();
+//        log.info(employeeInfoDTO.toString());
+        if(employeeInfoDTO == null){
+            return ResponseEntity.ok().body("잘못된 접근입니다.");
+        }
         return ResponseEntity.ok().body(employeeInfoDTO);
     }
 

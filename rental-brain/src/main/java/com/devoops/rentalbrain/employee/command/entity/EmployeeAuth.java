@@ -4,19 +4,18 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="emp_position_auth")
+@Table(name="employee_auth")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
-public class EmpPositionAuth {
+public class EmployeeAuth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column
-    private String positionId;
+    private Long authId;
     @Column
-    private String authId;
-
+    private Long empId;
 }

@@ -1,9 +1,10 @@
 package com.devoops.rentalbrain.employee.command.service;
 
 
-import com.devoops.rentalbrain.employee.command.dto.EmpPositionAuthDTO;
+import com.devoops.rentalbrain.employee.command.dto.EmployeeAuthDTO;
 import com.devoops.rentalbrain.employee.command.dto.LogoutDTO;
 import com.devoops.rentalbrain.employee.command.dto.SignUpDTO;
+import com.devoops.rentalbrain.employee.command.entity.EmployeeAuth;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
@@ -13,7 +14,7 @@ public interface EmployeeCommandService extends UserDetailsService {
 
     void logout(LogoutDTO logoutDTO,String token);
 
-    void modifyAuth(List<EmpPositionAuthDTO> empPositionAuthDTO);
+    void modifyAuth(List<EmployeeAuthDTO> empPositionAuthDTO);
 
     void saveLoginHistory(Long id, String ipAddress, char y);
 }

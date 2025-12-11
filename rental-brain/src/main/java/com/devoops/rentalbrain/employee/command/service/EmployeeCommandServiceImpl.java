@@ -1,10 +1,10 @@
 package com.devoops.rentalbrain.employee.command.service;
 
 import com.devoops.rentalbrain.employee.command.dto.*;
-import com.devoops.rentalbrain.employee.command.entity.EmpPositionAuth;
 import com.devoops.rentalbrain.employee.command.entity.Employee;
+import com.devoops.rentalbrain.employee.command.entity.EmployeeAuth;
 import com.devoops.rentalbrain.employee.command.entity.LoginHistory;
-import com.devoops.rentalbrain.employee.command.repository.EmpPositionAuthCommandRepository;
+import com.devoops.rentalbrain.employee.command.repository.EmployeeAuthCommandRepository;
 import com.devoops.rentalbrain.employee.command.repository.EmployeeCommandRepository;
 import com.devoops.rentalbrain.employee.command.repository.LoginHistoryCommandRepository;
 import com.devoops.rentalbrain.employee.query.service.EmployeeQueryServiceImpl;
@@ -21,10 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Service
 @Slf4j
@@ -34,22 +36,21 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
     private final Environment env;
-    private final EmpPositionAuthCommandRepository empPositionAuthCommandRepository;
+    private final EmployeeAuthCommandRepository employeeAuthCommandRepository;
     private final LoginHistoryCommandRepository loginHistoryCommandRepository;
 
     public EmployeeCommandServiceImpl(EmployeeCommandRepository employeeCommandRepository,
                                       EmployeeQueryServiceImpl employeeQueryServiceImpl,
                                       RedisTemplate<String, String> redisTemplate,
                                       Environment env,
-                                      EmpPositionAuthCommandRepository empPositionAuthCommandRepository,
-                                      LoginHistoryCommandRepository loginHistoryCommandRepository) {
+                                      EmployeeAuthCommandRepository employeeAuthCommandRepository, LoginHistoryCommandRepository loginHistoryCommandRepository) {
         this.employeeCommandRepository = employeeCommandRepository;
         this.bCryptPasswordEncoder = new BCryptPasswordEncoder();
         this.employeeQueryService = employeeQueryServiceImpl;
         this.redisTemplate = redisTemplate;
         this.env = env;
-        this.empPositionAuthCommandRepository = empPositionAuthCommandRepository;
         this.loginHistoryCommandRepository = loginHistoryCommandRepository;
+        this.employeeAuthCommandRepository = employeeAuthCommandRepository;
     }
 
     @Override
@@ -66,10 +67,10 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
 
 
         // 회원 권한 꺼내기
-        List<GrantedAuthority> grantedAuthorities = employeeQueryService.getUserAuth(employee.getId(), employee.getPositionId());
+        List<GrantedAuthority> grantedAuthorities = employeeQueryService.getUserAuth(employee.getId());
 
 
-        // 커스텀한 User 객체 이용
+        // 커스텀한 User 객체 이용(원래는 안티 패턴)
         UserImpl userImpl = new UserImpl(employee.getEmpId(), employee.getPwd(), grantedAuthorities);
         userImpl.setUserInfo(new UserDetailInfoDTO(
                         employee.getId(),
@@ -111,48 +112,55 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
         employee.setPositionId(signUpDTO.getPositionId());
 //        LocalDateTime now = LocalDateTime.now();
 //        employee.setSign_up_date(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        log.info("회원가입 사원 정보: {}",employee);
+        log.info("회원가입 사원 정보: {}", employee);
         employeeCommandRepository.save(employee);
     }
 
     @Override
-    public void logout(LogoutDTO logoutDTO,String token) {
+    public void logout(LogoutDTO logoutDTO, String token) {
         token = token.substring(7);
         try {
             redisTemplate.opsForValue().set("BL:" + token, logoutDTO.getEmpId(), Long.parseLong(env.getProperty("token.access_expiration_time")), TimeUnit.MILLISECONDS);
             redisTemplate.delete("RT:" + logoutDTO.getEmpId());
             log.info("redis 저장완료");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.info("redis 오류!");
         }
     }
 
     @Override
     @Transactional
-    public void modifyAuth(List<EmpPositionAuthDTO> empPositionAuthDTO) {
+    public void modifyAuth(List<EmployeeAuthDTO> employeeAuthDTO) {
+        if (employeeAuthDTO.isEmpty()) {
+            log.info("넘어온 사원 권한 정보 없음");
+            return;
+        }
+        Long emp_Id = employeeAuthDTO.get(0).getEmp_id();
+        List<Long> authList = employeeAuthDTO.stream()
+                .map(EmployeeAuthDTO::getAuth_id)
+                .toList();
+
         // db에 있는 직책별 권한 조회
-        List<EmpPositionAuth> empPositionAuthList = empPositionAuthCommandRepository.findAll();
-        Map<String, EmpPositionAuth> empPositionAuths = empPositionAuthList.stream()
-                .collect(Collectors.toMap(v->v.getPositionId() + "-" + v.getAuthId(), v -> v));
+        List<EmployeeAuth> employeeAuthList = employeeAuthCommandRepository.findByEmpId(emp_Id);
+        Map<Long, EmployeeAuth> employeeAuthMap = employeeAuthList.stream()
+                .collect(Collectors.toMap(EmployeeAuth::getAuthId, EmployeeAuth->EmployeeAuth));
 
-        for(EmpPositionAuthDTO empPositionAuthElement : empPositionAuthDTO){
-            if(empPositionAuths.get(empPositionAuthElement.getPositionId() + "-" + empPositionAuthElement.getAuthId()) == null) {
-                // 존재하지 않는 positionId + authId 일 때
-                EmpPositionAuth empPositionAuth = new EmpPositionAuth();
-
-                empPositionAuth.setPositionId(empPositionAuthElement.getPositionId());
-                empPositionAuth.setAuthId(empPositionAuthElement.getAuthId());
-                empPositionAuthCommandRepository.save(empPositionAuth);
-            }else{
-                // 이미 존재하는 positionId + authId 일 때
-                empPositionAuths.remove(empPositionAuthElement.getPositionId() + "-" + empPositionAuthElement.getAuthId());
+        // 수정된 권한이 있으면 저장
+        for (Long authId : authList) {
+            if (employeeAuthMap.get(authId) == null) {
+                EmployeeAuth employeeAuth = new EmployeeAuth();
+                employeeAuth.setAuthId(authId);
+                employeeAuth.setEmpId(emp_Id);
+                employeeAuthCommandRepository.save(employeeAuth);
+            } else {
+                employeeAuthMap.remove(authId);
             }
         }
 
-        // 남아있는 positionId + authId는 db 에서 삭제
-        empPositionAuthCommandRepository.deleteAll(empPositionAuths.values());
-        log.info("권한 수정 완료");
+        // 수정되지 않고 남아있는 권한은 삭제
+        for (Map.Entry<Long, EmployeeAuth> entry : employeeAuthMap.entrySet()) {
+            employeeAuthCommandRepository.delete(entry.getValue());
+        }
     }
 
     @Override

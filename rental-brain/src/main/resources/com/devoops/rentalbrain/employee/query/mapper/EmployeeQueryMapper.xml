@@ -38,31 +38,22 @@
             <id property="position_id" column="position_id"/>
             <result property="position_name" column="position_name"/>
         </association>
-        <collection property="empPositionAuth" ofType="com.devoops.rentalbrain.employee.query.dto.PositionAuthDTO">
-            <id property="emp_position_auth_id" column="emp_position_auth_id"/>
-            <result property="ep_position_id" column="ep_position_id"/>
-            <result property="ep_auth_id" column="ep_auth_id"/>
-        </collection>
         <collection property="empAuth" ofType="com.devoops.rentalbrain.employee.query.dto.EmpAuthDTO">
             <id property="employee_auth_id" column="employee_auth_id"/>
-            <result property="ea_auth_id" column="ea_auth_id"/>
-            <result property="ea_user_id" column="ea_user_id"/>
+            <result property="auth_id" column="ea_auth_id"/>
+            <result property="emp_id" column="ea_user_id"/>
         </collection>
 
     </resultMap>
     <select id="getUserAuth" resultType="string">
         SELECT
-               a.auth
-          FROM auth_list a
-         WHERE a.id IN (SELECT
-                               b.auth_id
-                          FROM employee_auth b
-                         WHERE emp_id = #{empId}
-                         UNION
-                        SELECT
-                               c.auth_id
-                          FROM emp_position_auth c
-                         WHERE position_id = #{positionId})
+               c.auth
+          FROM employee_auth a
+          JOIN employee b
+            ON a.emp_id = b.id
+          JOIN auth_list c
+            ON a.auth_id = c.id
+         WHERE a.emp_id = #{empId}
     </select>
     <select id="getEmpInfoPage" resultMap="empInfoPageResultMap">
         SELECT
@@ -100,18 +91,13 @@
                a.resign_date,
                b.id as position_id,
                b.position_name,
-               c.id as emp_position_auth_id,
-               c.position_id as ep_position_id,
-               c.auth_id as ep_auth_id,
-               d.id as employee_auth_id,
-               d.auth_id as ea_auth_id,
-               d.emp_id as ea_user_id
+               c.id as employee_auth_id,
+               c.auth_id as ea_auth_id,
+               c.emp_id as ea_user_id
           FROM employee a
      LEFT JOIN emp_position b
             ON a.position_id = b.id
-     LEFT JOIN emp_position_auth c
-            ON b.id = c.position_id
-     LEFT JOIN employee_auth d
-            ON a.id = d.emp_id
+     LEFT JOIN employee_auth c
+            ON a.id = c.emp_id
     </select>
 </mapper>

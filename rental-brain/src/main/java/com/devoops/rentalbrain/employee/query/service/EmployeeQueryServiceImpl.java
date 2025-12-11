@@ -1,10 +1,12 @@
 package com.devoops.rentalbrain.employee.query.service;
 
+import com.devoops.rentalbrain.employee.command.dto.UserImpl;
 import com.devoops.rentalbrain.employee.query.dto.EmployeeInfoDTO;
 import com.devoops.rentalbrain.employee.query.mapper.EmployeeQueryMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,15 +21,16 @@ public class EmployeeQueryServiceImpl implements EmployeeQueryService {
         this.employeeQueryMapper = employeeQueryMapper;
     }
 
-    public List<GrantedAuthority> getUserAuth(Long empId, Long positionId){
-        return employeeQueryMapper.getUserAuth(empId,positionId).stream()
+    public List<GrantedAuthority> getUserAuth(Long empId){
+        return employeeQueryMapper.getUserAuth(empId).stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
 
-    public EmployeeInfoDTO getEmpInfoPage(String empId) {
-        log.info("{}",empId);
-        return employeeQueryMapper.getEmpInfoPage(empId);
+    public EmployeeInfoDTO getEmpInfoPage() {
+        UserImpl user = (UserImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String accessInfo = user.getEmpId();
+        return employeeQueryMapper.getEmpInfoPage(accessInfo);
     }
 
     @Override

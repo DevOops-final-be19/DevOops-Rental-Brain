@@ -8,7 +8,7 @@ import java.util.List;
 
 @Mapper
 public interface EmployeeQueryMapper {
-    List<String> getUserAuth(Long empId, Long positionId);
+    List<String> getUserAuth(Long empId);
 
     EmployeeInfoDTO getEmpInfoPage(String empId);
 
