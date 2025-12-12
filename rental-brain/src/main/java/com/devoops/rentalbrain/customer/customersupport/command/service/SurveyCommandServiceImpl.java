@@ -1,32 +1,33 @@
 package com.devoops.rentalbrain.customer.customersupport.command.service;
 
+import com.devoops.rentalbrain.customer.common.SurveyDTO;
+import com.devoops.rentalbrain.customer.customersupport.command.entity.Survey;
+import com.devoops.rentalbrain.customer.customersupport.command.repository.SurveyCommandRepository;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatModel;
-import com.openai.models.files.FileCreateParams;
-import com.openai.models.files.FileObject;
-import com.openai.models.files.FilePurpose;
 import com.openai.models.responses.Response;
 import com.openai.models.responses.ResponseCreateParams;
-import com.openai.models.responses.ResponseInputFile;
-import com.openai.models.responses.ResponseInputItem;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
-import java.util.List;
+
 
 @Service
 @Slf4j
 public class SurveyCommandServiceImpl implements SurveyCommandService {
-
-    public SurveyCommandServiceImpl() {
-
+    private final ModelMapper modelMapper;
+    private final SurveyCommandRepository surveyCommandRepository;
+    public SurveyCommandServiceImpl(ModelMapper modelMapper,
+                                    SurveyCommandRepository surveyCommandRepository) {
+        this.modelMapper = modelMapper;
+        this.surveyCommandRepository = surveyCommandRepository;
     }
 
     @Override
@@ -50,5 +51,15 @@ public class SurveyCommandServiceImpl implements SurveyCommandService {
         log.info("response 값 : {}", response);
 
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void startSurvey(SurveyDTO surveyDTO) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Survey survey = modelMapper.map(surveyDTO, Survey.class);
+
+        log.info("survey : {}", survey);
+        surveyCommandRepository.save(survey);
     }
 }

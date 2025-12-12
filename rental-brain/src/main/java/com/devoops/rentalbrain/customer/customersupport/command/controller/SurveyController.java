@@ -1,5 +1,6 @@
 package com.devoops.rentalbrain.customer.customersupport.command.controller;
 
+import com.devoops.rentalbrain.customer.common.SurveyDTO;
 import com.devoops.rentalbrain.customer.customersupport.command.service.SurveyCommandService;
 import com.openai.models.responses.Response;
 import com.openai.models.responses.ResponseOutputText;
@@ -34,5 +35,11 @@ public class SurveyController {
                 .filter(s->!s.equals("```html")&&!s.equals("```"))
                 .reduce("",(a,b)->a+b);
         return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<?> startSurvey(@RequestBody SurveyDTO surveyDTO) {
+        surveyCommandService.startSurvey(surveyDTO);
+        return ResponseEntity.ok().build();
     }
 }
