@@ -1,6 +1,5 @@
 package com.devoops.rentalbrain.employee.command.dto;
 
-import com.devoops.rentalbrain.employee.query.dto.PositionDTO;
 import lombok.*;
 
 @NoArgsConstructor

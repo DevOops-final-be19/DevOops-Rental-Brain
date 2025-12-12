@@ -3,6 +3,7 @@ package com.devoops.rentalbrain.customer.customersupport.query.mapper;
 import com.devoops.rentalbrain.customer.common.SurveyCategoryDTO;
 import com.devoops.rentalbrain.customer.common.SurveyDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyAndCategoryDTO;
+import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyResultDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -14,5 +15,5 @@ public interface SurveyQueryMapper {
 
     List<SurveyAndCategoryDTO> getAllSurveyList();
 
-    SurveyDTO getSurveyInfo(Long id);
+    SurveyResultDTO getSurveyResult(Long id);
 }

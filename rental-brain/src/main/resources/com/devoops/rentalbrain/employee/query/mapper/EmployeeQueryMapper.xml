@@ -45,8 +45,10 @@
             <result property="auth_id" column="ea_auth_id"/>
             <result property="emp_id" column="ea_user_id"/>
         </collection>
-
     </resultMap>
+
+
+
     <select id="getUserAuth" resultType="string">
         SELECT
                c.auth
@@ -104,4 +106,6 @@
      LEFT JOIN employee_auth c
             ON a.id = c.emp_id
     </select>
+
+
 </mapper>

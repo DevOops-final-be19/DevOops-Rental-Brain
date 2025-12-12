@@ -3,6 +3,7 @@ package com.devoops.rentalbrain.customer.customersupport.query.controller;
 import com.devoops.rentalbrain.customer.common.SurveyCategoryDTO;
 import com.devoops.rentalbrain.customer.common.SurveyDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyAndCategoryDTO;
+import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyResultDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.service.SurveyQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +31,7 @@ public class SurveyQueryController {
     }
 
     @GetMapping("/list/{id}")
-    public SurveyDTO getSurveyInfo(@PathVariable Long id){
-        return surveyQueryService.getSurveyInfo(id);
+    public SurveyResultDTO getSurveyResult(@PathVariable Long id){
+        return surveyQueryService.getSurveyResult(id);
     }
 }

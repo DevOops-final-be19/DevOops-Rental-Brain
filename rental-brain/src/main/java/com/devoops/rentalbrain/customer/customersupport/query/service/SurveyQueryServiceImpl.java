@@ -3,6 +3,7 @@ package com.devoops.rentalbrain.customer.customersupport.query.service;
 import com.devoops.rentalbrain.customer.common.SurveyCategoryDTO;
 import com.devoops.rentalbrain.customer.common.SurveyDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyAndCategoryDTO;
+import com.devoops.rentalbrain.customer.customersupport.query.dto.SurveyResultDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.mapper.SurveyQueryMapper;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class SurveyQueryServiceImpl implements SurveyQueryService {
     }
 
     @Override
-    public SurveyDTO getSurveyInfo(Long id) {
-        return surveyQueryMapper.getSurveyInfo(id);
+    public SurveyResultDTO getSurveyResult(Long id) {
+        return surveyQueryMapper.getSurveyResult(id);
     }
 }
