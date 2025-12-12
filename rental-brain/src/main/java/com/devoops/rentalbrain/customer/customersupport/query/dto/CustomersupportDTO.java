@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class CustomersupportDTO {
     private Long id;
+    private String customerSupportCode;
     private String title;
     private String content;
     private String status;

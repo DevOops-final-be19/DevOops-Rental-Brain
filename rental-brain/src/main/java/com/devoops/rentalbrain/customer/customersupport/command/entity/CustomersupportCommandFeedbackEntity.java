@@ -21,6 +21,9 @@ public class CustomersupportCommandFeedbackEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "feedback_code", nullable = false, unique = true)
+    private String feedbackCode; // [추가]
+
     @Column(nullable = false)
     private String title;
 

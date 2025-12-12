@@ -1,6 +1,6 @@
 package com.devoops.rentalbrain.customer.customersupport.query.controller;
 
-import com.devoops.rentalbrain.common.Pagination.PageResponseDTO;
+import com.devoops.rentalbrain.common.pagination.PageResponseDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.dto.*;
 import com.devoops.rentalbrain.customer.customersupport.query.service.CustomersupportQueryFeedbackService;
 import lombok.RequiredArgsConstructor;

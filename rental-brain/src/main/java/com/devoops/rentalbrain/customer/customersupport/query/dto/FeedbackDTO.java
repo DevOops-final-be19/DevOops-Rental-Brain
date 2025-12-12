@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 @Data
 public class FeedbackDTO {
     private Long id;
+    private String feedbackCode;
     private String title;
     private String content;
     private Integer star;

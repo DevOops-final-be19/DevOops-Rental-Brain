@@ -1,5 +1,7 @@
 package com.devoops.rentalbrain.customer.customersupport.command.service;
 
+import com.devoops.rentalbrain.common.codegenerator.CodeGenerator;
+import com.devoops.rentalbrain.common.codegenerator.CodeType;
 import com.devoops.rentalbrain.customer.customersupport.command.dto.CustomersupportDTO;
 import com.devoops.rentalbrain.customer.customersupport.command.entity.CustomersupportCommandCustomersupportEntity;
 import com.devoops.rentalbrain.customer.customersupport.command.repository.CustomersupportCommandCustomersupportRepository;
@@ -18,11 +20,15 @@ public class CustomersupportCommandCustomersupportServiceImpl implements Custome
 
     private final CustomersupportCommandCustomersupportRepository repository;
     private final ModelMapper modelMapper;
+    private final CodeGenerator codeGenerator;
 
     @Override   // 추가
     public Long registerSupport(CustomersupportDTO dto) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         CustomersupportCommandCustomersupportEntity entity = modelMapper.map(dto, CustomersupportCommandCustomersupportEntity.class);
+        String code = codeGenerator.generate(CodeType.CUSTOMER_SUPPORT);
+        entity.setCustomerSupportCode(code);
+
         return repository.save(entity).getId();
     }
 

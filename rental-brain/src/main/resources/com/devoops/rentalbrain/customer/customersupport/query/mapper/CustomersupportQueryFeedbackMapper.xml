@@ -22,6 +22,7 @@
             parameterType="com.devoops.rentalbrain.customer.customersupport.query.dto.FeedbackSearchDTO">
         SELECT
                A.ID
+             , A.FEEDBACK_CODE
              , A.TITLE
              , A.CONTENT
              , A.STAR
@@ -58,6 +59,7 @@
     <select id="selectFeedbackById" resultMap="FeedbackMap" parameterType="long">
         SELECT
                A.ID
+             , A.FEEDBACK_CODE
              , A.TITLE
              , A.CONTENT
              , A.STAR

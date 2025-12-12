@@ -21,6 +21,9 @@ public class CustomersupportCommandCustomersupportEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "customer_support_code", nullable = false, unique = true)
+    private String customerSupportCode; // [추가]
+
     @Column(nullable = false)
     private String title;
 
