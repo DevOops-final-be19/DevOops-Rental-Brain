@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.devoops.rentalbrain.business.contract.query.mapper.ContractQueryMapper">
+    <select id="getContractList" resultType="com.devoops.rentalbrain.business.contract.query.dto.AllContractDTO"
+    parameterType="com.devoops.rentalbrain.business.contract.query.dto.ContractSearchDTO">
+        SELECT
+            T.id,
+            C.name AS cusName,
+            C.in_charge,
+            C.call_num,
+            T.name AS conName,
+            T.start_date,
+            T.contract_period,
+            T.monthly_payment,
+            T.status
+        FROM contract t LEFT JOIN customer c
+            ON t.cum_id = c.id
+        <where>
+            <if test="keyword != null and keyword != '' and type != null">
+                <foreach collection="type.split(',')" item="t" open="(" close=")" separator="OR">
+                    <choose>
+                        <when test="t == 'id'">
+                            T.ID LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'cusName'">
+                            C.NAME LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'in_charge'">
+                            C.IN_CHARGE LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'conName'">
+                            T.NAME LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+        </where>
+        ORDER BY id DESC
+            LIMIT #{amount} OFFSET #{offset}
+    </select>
+
+    <select id="getCountContract" resultType="long"
+    parameterType="com.devoops.rentalbrain.business.contract.query.dto.ContractSearchDTO">
+        SELECT COUNT(*)
+        FROM contract t JOIN customer c
+        ON t.cum_id = c.id
+        <where>
+            <if test="keyword != null and keyword != '' and type != null">
+                <foreach collection="type.split(',')" item="t" open="(" close=")" separator="OR">
+                    <choose>
+                        <when test="t == 'id'">
+                            T.ID LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'cusName'">
+                            C.NAME LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'in_charge'">
+                            C.IN_CHARGE LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                        <when test="t == 'conName'">
+                            T.NAME LIKE CONCAT('%', #{keyword}, '%')
+                        </when>
+                    </choose>
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>
