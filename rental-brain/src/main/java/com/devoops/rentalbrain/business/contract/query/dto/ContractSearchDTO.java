@@ -1,0 +1,16 @@
+package com.devoops.rentalbrain.business.contract.query.dto;
+
+import com.devoops.rentalbrain.common.Pagination.Criteria;
+import lombok.Data;
+
+@Data
+public class ContractSearchDTO extends Criteria {
+    private Long id;
+    private String cusName;
+    private String in_charge;
+    private String conName;
+
+    public ContractSearchDTO(int page, int size) {
+        super(page, size);
+    }
+}
