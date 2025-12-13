@@ -9,6 +9,6 @@ import java.util.List;
 public interface ChannelQueryService {
     List<ChannelQueryDTO> selectChannelList(String channelName);
     List<ChannelKpiQueryDTO> selectChannelKpi(String channelName);
-    ChannelTotalSumDTO getChannelTotalSum();
+    ChannelTotalSumDTO selectChannelTotalSum();
 
 }

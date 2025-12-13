@@ -12,6 +12,6 @@ import java.util.List;
 public interface ChannelQueryMapper {
     List<ChannelQueryDTO> selectChannelList(@Param("channelName") String channelName);
     List<ChannelKpiQueryDTO> selectChannelKpi(@Param("channelName") String channelName);
-    ChannelTotalSumDTO getChannelTotalSum();
+    ChannelTotalSumDTO selectChannelTotalSum();
 
 }

@@ -48,9 +48,9 @@ public class ChannelQueryController {
 
     // 혹시 몰라서 전체 totalsum -> 각 테이블에 대한 전체 채널 합계
     @GetMapping("/totalSum")
-    public ResponseEntity<ChannelTotalSumDTO> getChannelTotalSum() {
+    public ResponseEntity<ChannelTotalSumDTO> selectChannelTotalSum() {
 
-        ChannelTotalSumDTO summary = channelQueryService.getChannelTotalSum();
+        ChannelTotalSumDTO summary = channelQueryService.selectChannelTotalSum();
         return ResponseEntity.ok(summary);
     }
 }

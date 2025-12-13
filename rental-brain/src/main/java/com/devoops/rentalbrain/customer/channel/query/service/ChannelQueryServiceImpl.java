@@ -38,8 +38,8 @@ public class ChannelQueryServiceImpl implements ChannelQueryService {
     }
 
     @Override
-    public ChannelTotalSumDTO getChannelTotalSum() {
-        ChannelTotalSumDTO sum = channelQueryMapper.getChannelTotalSum();
+    public ChannelTotalSumDTO selectChannelTotalSum() {
+        ChannelTotalSumDTO sum = channelQueryMapper.selectChannelTotalSum();
 
         log.info("전체 채널, 고객: {}, 상담: {}, 피드백: {}, 문의: {}, 토탈: {}",
                 sum.getCustomerCount(),
