@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.devoops.rentalbrain.customer.channel.query.mapper.ChannelQueryMapper">
+
+    <!-- =========================================================
+         1) GET /channel/list
+         ========================================================= -->
+    <resultMap id="ChannelListMap" type="com.devoops.rentalbrain.customer.channel.query.dto.ChannelQueryDTO">
+        <id property="channelId" column="channel_id"/>
+        <result property="channelName" column="channel_name"/>
+    </resultMap>
+
+    <select id="selectChannelList" resultMap="ChannelListMap" parameterType="string">
+        SELECT
+        id   AS channel_id,
+        name AS channel_name
+        FROM channel
+        <where>
+            <if test="channelName != null and channelName != ''">
+                name LIKE CONCAT('%', #{channelName}, '%')
+            </if>
+        </where>
+        ORDER BY id
+    </select>
+
+
+<!--    &lt;!&ndash; =========================================================-->
+<!--         2) GET /channel/kpi-->
+<!--         ========================================================= &ndash;&gt;-->
+<!--    <resultMap id="ChannelKpiMap" type="com.devoops.rentalbrain.customer.channel.query.dto.ChannelKpiQueryDTO">-->
+<!--        <id property="channelId" column="channel_id"/>-->
+<!--        <result property="channelName" column="channel_name"/>-->
+<!--        <result property="customerCount" column="customer_count"/>-->
+<!--        <result property="quoteCount" column="quote_count"/>-->
+<!--        <result property="feedbackCount" column="feedback_count"/>-->
+<!--        <result property="customerSupportCount" column="customer_support_count"/>-->
+<!--        <result property="totalCount" column="total_count"/>-->
+<!--    </resultMap>-->
+
+<!--    <select id="selectChannelKpi" resultMap="ChannelKpiMap" parameterType="string">-->
+<!--        SELECT-->
+<!--        ch.id AS channel_id,-->
+<!--        ch.name AS channel_name,-->
+<!--        IFNULL(x.customer_cnt, 0)  AS customer_count,-->
+<!--        IFNULL(x.quote_cnt, 0)     AS quote_count,-->
+<!--        IFNULL(x.feedback_cnt, 0)  AS feedback_count,-->
+<!--        IFNULL(x.cs_cnt, 0)        AS customer_support_count,-->
+<!--        (IFNULL(x.customer_cnt,0)-->
+<!--        + IFNULL(x.quote_cnt,0)-->
+<!--        + IFNULL(x.feedback_cnt,0)-->
+<!--        + IFNULL(x.cs_cnt,0))     AS total_count-->
+<!--        FROM channel ch-->
+<!--        LEFT JOIN (-->
+<!--        SELECT-->
+<!--        channel_id,-->
+<!--        SUM(customer_cnt)  AS customer_cnt,-->
+<!--        SUM(quote_cnt)     AS quote_cnt,-->
+<!--        SUM(feedback_cnt)  AS feedback_cnt,-->
+<!--        SUM(cs_cnt)        AS cs_cnt-->
+<!--        FROM (-->
+<!--        SELECT channel_id, COUNT(*) AS customer_cnt, 0 AS quote_cnt, 0 AS feedback_cnt, 0 AS cs_cnt-->
+<!--        FROM customer-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, COUNT(*), 0, 0-->
+<!--        FROM quote-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, 0, COUNT(*), 0-->
+<!--        FROM feedback-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, 0, 0, COUNT(*)-->
+<!--        FROM customer_support-->
+<!--        GROUP BY channel_id-->
+<!--        ) u-->
+<!--        GROUP BY channel_id-->
+<!--        ) x ON x.channel_id = ch.id-->
+
+<!--        <where>-->
+<!--            <if test="channelName != null and channelName != ''">-->
+<!--                ch.name LIKE CONCAT('%', #{channelName}, '%')-->
+<!--            </if>-->
+<!--        </where>-->
+
+<!--        ORDER BY ch.id-->
+<!--    </select>-->
+
+
+<!--    &lt;!&ndash; =========================================================-->
+<!--         3) GET /channel/totalSum  (전체 통합 합계 1행)-->
+<!--         ========================================================= &ndash;&gt;-->
+<!--    <resultMap id="ChannelTotalSumMap" type="com.devoops.rentalbrain.customer.channel.query.dto.ChannelTotalSumDTO">-->
+<!--        <result property="customerCount" column="customer_count"/>-->
+<!--        <result property="quoteCount" column="quote_count"/>-->
+<!--        <result property="feedbackCount" column="feedback_count"/>-->
+<!--        <result property="customerSupportCount" column="customer_support_count"/>-->
+<!--        <result property="totalCount" column="total_count"/>-->
+<!--    </resultMap>-->
+
+<!--    <select id="selectChannelTotalSum" resultMap="ChannelTotalSumMap">-->
+<!--        SELECT-->
+<!--        SUM(customer_cnt)  AS customer_count,-->
+<!--        SUM(quote_cnt)     AS quote_count,-->
+<!--        SUM(feedback_cnt)  AS feedback_count,-->
+<!--        SUM(cs_cnt)        AS customer_support_count,-->
+<!--        SUM(customer_cnt + quote_cnt + feedback_cnt + cs_cnt) AS total_count-->
+<!--        FROM (-->
+<!--        SELECT channel_id, COUNT(*) AS customer_cnt, 0 AS quote_cnt, 0 AS feedback_cnt, 0 AS cs_cnt-->
+<!--        FROM customer-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, COUNT(*), 0, 0-->
+<!--        FROM quote-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, 0, COUNT(*), 0-->
+<!--        FROM feedback-->
+<!--        GROUP BY channel_id-->
+
+<!--        UNION ALL-->
+
+<!--        SELECT channel_id, 0, 0, 0, COUNT(*)-->
+<!--        FROM customer_support-->
+<!--        GROUP BY channel_id-->
+<!--        ) t-->
+<!--    </select>-->
+
+</mapper>
