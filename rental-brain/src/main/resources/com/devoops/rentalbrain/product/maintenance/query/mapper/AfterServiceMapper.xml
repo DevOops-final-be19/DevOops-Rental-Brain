@@ -12,7 +12,7 @@
     <!-- 목록 -->
     <select id="findAll" resultType="AfterServiceResponse">
         SELECT
-            a.id,
+            a.after_service_code,
             c.name AS customerName,
             c.in_charge AS customerManager,
             i.name AS itemName,
@@ -30,7 +30,7 @@
     <!-- 목록 상세 조회 -->
     <select id="findById" parameterType="long" resultType="AfterServiceDetailResponse">
         SELECT
-        a.id,
+        a.after_service_code,
         c.name AS customerName,
         c.in_charge AS customerManager,
         i.name AS itemName,

@@ -17,16 +17,22 @@ public class AfterService {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "after_service_code", nullable = false, unique = true)
+    private String afterserviceCode;
+
+    @Column
     private String engineer;
 
     @Column(length = 1, nullable = false)
     private String type;   // R:정기점검, A:AS
 
+    @Column
     private LocalDateTime dueDate;
 
     @Column(length = 1, nullable = false)
     private String status; // P:예정, C:완료
 
+    @Column
     private String contents;
 
     @Column(name = "item_id")
