@@ -136,7 +136,7 @@ public class EmployeeCommandServiceImpl implements EmployeeCommandService {
             redisTemplate.delete("RT:" + logoutDTO.getEmpId());
             log.info("redis 저장완료");
         } catch (Exception e) {
-            log.info("redis 오류!");
+            log.info("오류 - {}",e.getMessage());
         }
     }
 
