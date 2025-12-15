@@ -6,6 +6,7 @@
 
     <resultMap id="FeedbackMap" type="com.devoops.rentalbrain.customer.customersupport.query.dto.FeedbackDTO">
         <id property="id" column="ID"/>
+        <result property="feedbackCode" column="FEEDBACK_CODE"/>
         <result property="title" column="TITLE"/>
         <result property="content" column="CONTENT"/>
         <result property="star" column="STAR"/>

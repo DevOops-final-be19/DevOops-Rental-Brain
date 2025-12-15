@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/customer-supports")
+@RequestMapping("/api/customersupports")
 public class CustomersupportQueryCustomersupportController {
 
     private final CustomersupportQueryCustomersupportService queryService;

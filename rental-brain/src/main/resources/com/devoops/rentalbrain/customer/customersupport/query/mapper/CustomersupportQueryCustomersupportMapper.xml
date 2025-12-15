@@ -6,6 +6,7 @@
 
     <resultMap id="SupportMap" type="com.devoops.rentalbrain.customer.customersupport.query.dto.CustomersupportDTO">
         <id property="id" column="ID"/>
+        <result property="customerSupportCode" column="CUSTOMER_SUPPORT_CODE"/>
         <result property="title" column="TITLE"/>
         <result property="content" column="CONTENT"/>
         <result property="status" column="STATUS"/>
