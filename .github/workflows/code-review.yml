@@ -9,11 +9,7 @@ permissions:
 # PR 이벤트 관련해서 워크플로우 실행
 on:
   pull_request:
-<<<<<<< HEAD
-    types: [opened, synchronize, reopened]
-=======
     types: [opened, reopened, synchronize]
->>>>>>> develop
 
 # 워크플로우 실행 작업 정의
 jobs:
