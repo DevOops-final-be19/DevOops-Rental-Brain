@@ -10,8 +10,8 @@ public class AfterServiceScheduler {
 
     private final AfterServiceCommandService service;
 
-    // 매 10분마다 완료 + 생성을 하나의 흐름으로 처리
-    @Scheduled(cron = "0 */10 * * * *")
+    // 매 30분마다 완료 + 생성을 하나의 흐름으로 처리
+    @Scheduled(cron = "0 */30 * * * *")
     public void autoProcessAfterService() {
         service.autoCompleteAndCreateNext();
     }
