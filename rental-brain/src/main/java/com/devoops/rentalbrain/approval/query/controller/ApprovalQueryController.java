@@ -1,5 +1,7 @@
 package com.devoops.rentalbrain.approval.query.controller;
 
+import com.devoops.rentalbrain.approval.query.dto.ApprovalCompletedDTO;
+import com.devoops.rentalbrain.approval.query.dto.ApprovalProgressDTO;
 import com.devoops.rentalbrain.approval.query.dto.ApprovalStatusDTO;
 import com.devoops.rentalbrain.approval.query.dto.PendingApprovalDTO;
 import com.devoops.rentalbrain.approval.query.service.ApprovalQueryService;
@@ -33,5 +35,21 @@ public class ApprovalQueryController {
             Criteria criteria
     ) {
         return approvalQueryService.getPendingApprovals(empId, criteria);
+    }
+
+    @GetMapping("/progress/{empId}")
+    public PageResponseDTO<ApprovalProgressDTO> getApprovalProgress(
+            @PathVariable Long empId,
+            Criteria criteria
+    ) {
+        return approvalQueryService.getApprovalProgress(empId, criteria);
+    }
+
+    @GetMapping("/completed/{empId}")
+    public PageResponseDTO<ApprovalCompletedDTO> getApprovalCompleted(
+            @PathVariable Long empId,
+            Criteria criteria
+    ){
+        return approvalQueryService.getApprovalCompleted(empId, criteria);
     }
 }

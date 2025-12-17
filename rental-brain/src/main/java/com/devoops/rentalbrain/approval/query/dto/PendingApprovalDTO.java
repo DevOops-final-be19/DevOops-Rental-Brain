@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class PendingApprovalDTO {
     // approval_mapping
     private Long approvalMappingId;
-    private Long approvalEmpId;
+    private Long approverEmpId;
     private Integer approvalStep;
     private String isApproved;
 

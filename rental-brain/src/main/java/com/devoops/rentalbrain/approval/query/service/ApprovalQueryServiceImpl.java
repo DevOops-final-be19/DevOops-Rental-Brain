@@ -1,5 +1,7 @@
 package com.devoops.rentalbrain.approval.query.service;
 
+import com.devoops.rentalbrain.approval.query.dto.ApprovalCompletedDTO;
+import com.devoops.rentalbrain.approval.query.dto.ApprovalProgressDTO;
 import com.devoops.rentalbrain.approval.query.dto.ApprovalStatusDTO;
 import com.devoops.rentalbrain.approval.query.dto.PendingApprovalDTO;
 import com.devoops.rentalbrain.approval.query.mapper.ApprovalQueryMapper;
@@ -44,4 +46,42 @@ public class ApprovalQueryServiceImpl implements ApprovalQueryService {
         // 4. 응답 DTO 조립
         return new PageResponseDTO<>(list, totalCount, paging);
     }
+
+    @Override
+    public PageResponseDTO<ApprovalProgressDTO> getApprovalProgress(Long empId, Criteria criteria) {
+        // 1. 목록 조회
+        List<ApprovalProgressDTO> list =
+                approvalQueryMapper.selectInProgressApprovals(empId, criteria);
+
+        // 2. 전체 개수 조회
+        long totalCount =
+                approvalQueryMapper.countInProgressApprovals(empId,criteria);
+
+        // 3. 페이지 버튼 정보 생성
+        PagingButtonInfo paging =
+                Pagination.getPagingButtonInfo(criteria, totalCount);
+
+        // 4. 응답 DTO 조립
+        return new PageResponseDTO<>(list, totalCount, paging);
+    }
+
+    @Override
+    public PageResponseDTO<ApprovalCompletedDTO> getApprovalCompleted(Long empId, Criteria criteria) {
+        // 1. 목록조회
+        List<ApprovalCompletedDTO> list =
+                approvalQueryMapper.selectCompletedApprovals(empId,criteria);
+
+        // 2. 전체 개수 조회
+        long totalCount =
+                approvalQueryMapper.countCompletedApprovals(empId,criteria);
+
+        // 3. 페이지 버튼 정보 생성
+        PagingButtonInfo paging =
+                Pagination.getPagingButtonInfo(criteria, totalCount);
+
+        // 4. 응답 DTO 조립
+        return new PageResponseDTO<>(list, totalCount, paging);
+    }
+
+
 }
