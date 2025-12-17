@@ -9,7 +9,8 @@ import lombok.ToString;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "contract")
@@ -40,7 +41,7 @@ public class ContractCommandEntity {
      * 계약 시작일
      */
     @Column(name = "start_date", nullable = false)
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     /**
      * 계약 기간 (개월)

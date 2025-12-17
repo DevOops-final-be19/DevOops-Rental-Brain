@@ -13,6 +13,8 @@ import com.devoops.rentalbrain.business.contract.command.repository.ContractComm
 import com.devoops.rentalbrain.business.contract.command.repository.ContractItemCommandRepository;
 import com.devoops.rentalbrain.common.codegenerator.CodeGenerator;
 import com.devoops.rentalbrain.common.codegenerator.CodeType;
+import com.devoops.rentalbrain.common.error.ErrorCode;
+import com.devoops.rentalbrain.common.error.exception.BusinessException;
 import com.devoops.rentalbrain.customer.customerlist.command.entity.CustomerlistCommandEntity;
 import com.devoops.rentalbrain.employee.command.entity.Employee;
 import com.devoops.rentalbrain.product.productlist.command.repository.ItemRepository;
@@ -134,7 +136,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         );
 
         approval.setTitle(dto.getContractName());
-        approval.setRequestDate(dto.getStartDate());
+        approval.setRequestDate(LocalDateTime.now());
         approval.setStatus("P"); // 승인 대기
         approval.setContract(savedContract);
 
@@ -164,9 +166,20 @@ public class ContractCommandServiceImpl implements ContractCommandService {
                             item.getQuantity()
                     );
 
+            int requested = item.getQuantity();   // 요청 수량
+            int available = itemIds.size();       // 실제 가능 수량
+            int shortage  = requested - available;
+
             if (itemIds.size() < item.getQuantity()) {
-                throw new IllegalStateException(
-                        "대여 가능한 상품 수량이 부족합니다. itemName=" + item.getItemName()
+                throw new BusinessException(
+                        ErrorCode.CONTRACT_ITEM_STOCK_NOT_ENOUGH,
+                        String.format(
+                                "상품 [%s] 재고 부족 - 요청: %d, 가능: %d, 부족: %d",
+                                item.getItemName(),
+                                requested,
+                                available,
+                                shortage
+                        )
                 );
             }
 
