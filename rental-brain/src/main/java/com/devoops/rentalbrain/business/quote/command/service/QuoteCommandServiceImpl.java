@@ -6,6 +6,9 @@ import com.devoops.rentalbrain.business.quote.command.entity.QuoteCommandEntity;
 import com.devoops.rentalbrain.business.quote.command.repository.QuoteCommandRepository;
 import com.devoops.rentalbrain.common.codegenerator.CodeGenerator;
 import com.devoops.rentalbrain.common.codegenerator.CodeType;
+import com.devoops.rentalbrain.common.notice.domain.PositionType;
+import com.devoops.rentalbrain.common.notice.strategy.event.QuoteInsertedEvent;
+import com.devoops.rentalbrain.common.notice.facade.NotificationPublisher;
 import com.devoops.rentalbrain.customer.customerlist.command.entity.CustomerlistCommandEntity;
 import com.devoops.rentalbrain.customer.customerlist.command.repository.CustomerlistCommandRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +25,7 @@ public class QuoteCommandServiceImpl implements QuoteCommandService {
     private final QuoteCommandRepository quoteCommandRepository;
     private final CustomerlistCommandRepository customerlistCommandRepository;
     private final CodeGenerator codeGenerator;
+    private final NotificationPublisher notificationPublisher;
 
     @Override
     @Transactional
@@ -56,6 +60,10 @@ public class QuoteCommandServiceImpl implements QuoteCommandService {
 
         // 필요하면 dto에 id 세팅해서 반환
         quoteCommandCreateDTO.setQuoteId(saved.getQuoteId());
+
+        // 해당 부서에 알림 전송
+        notificationPublisher.publish(new QuoteInsertedEvent(PositionType.CUSTOMER));
+
         return quoteCommandCreateDTO;
     }
 
