@@ -2,6 +2,8 @@ package com.devoops.rentalbrain.customer.segment.query.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -9,16 +11,27 @@ import lombok.*;
 @ToString
 public class SegmentQueryKPIDTO {
 
-    // 이탈 위험 고객 비중
-    private double riskCustomerRate;     // %
-    private int riskCustomerCount;       // 이탈 위험 고객 고객사 수
-    private int totalCustomerCount;      // 전체 고객수
+    //이탈 위험 고객 비중
+    private Double riskCustomerRate;     // 18.3
+    private Long riskCustomerCount;      // 9
+    private Long totalCustomerCount;     // 전체
+    private Double momChangeRate;        // 전월 대비 -2.1(%) 같은 변화율/변화값
 
-    // 가장 위험한 세그먼트 (이번달 세그먼트 평균 평점 최저)
-    private String mostRiskySegmentName;
-    private double mostRiskySegmentRate; // 평균 평점(낮을수록 위험)
+    // 2~3번 카드들은 공통으로 들어가는 부분들 묶음
 
-    // 분포 KPI: 2.5 이하 세그먼트 개수
-    private int lowSatisfactionSegmentCount; // avg <= 2.5 세그먼트 수
-    private int totalSegmentCount;           // 전체 세그먼트 수(고객 포함 기준)
+    // 이전 세그먼트 분포
+    private List<DistItem> prevSegmentDist;
+
+    // 이탈 원인 분포
+    private List<DistItem> riskReasonDist;
+
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Data
+    public static class DistItem {
+        private String name;     // "일반 고객" / "계약 만료 임박형"
+        private Long count;      // 건수
+        private Double rate;     // %
+    }
 }
