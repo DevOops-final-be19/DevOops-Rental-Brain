@@ -22,7 +22,7 @@ import java.util.List;
 )
 public class SegmentQueryController {
 
-    private SegmentQueryService segmentQueryService;
+    private final SegmentQueryService segmentQueryService;
 
     @Autowired
     public SegmentQueryController(SegmentQueryService segmentQueryService) {
