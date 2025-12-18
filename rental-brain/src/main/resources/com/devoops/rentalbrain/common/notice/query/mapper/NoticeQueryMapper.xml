@@ -43,6 +43,7 @@
            ON a.noti_id = b.id
         WHERE emp_id = #{empId}
           AND a.is_read = 'N'
+        ORDER BY a.is_read
     </select>
 
     <select id="getAllNoticeList" resultMap="getNewNoticeListResultMap">
@@ -60,5 +61,6 @@
         FROM notification_receiver a JOIN notification b
                                           ON a.noti_id = b.id
         WHERE emp_id = #{empId}
+        ORDER BY a.is_read
     </select>
 </mapper>

@@ -90,10 +90,17 @@ public class NoticeCommandServiceImpl implements NoticeCommandService {
 
     @Override
     @Transactional
-    public void deleteNotice(NoticeDeleteDTO noticeDeleteDTO) {
+    public void deleteNotice(List<NoticeDeleteDTO> noticeDeleteDTO) {
         try {
-            NotificationReceiver notificationReceiver = notificationReceiverRepository.findById(noticeDeleteDTO.getNoticeId()).get();
-            notificationReceiverRepository.delete(notificationReceiver);
+            if(noticeDeleteDTO.size()==1){
+                notificationReceiverRepository.deleteById(noticeDeleteDTO.get(0).getNoticeId());
+            }
+            else{
+                List<Long> notificationReceivers = noticeDeleteDTO.stream()
+                        .map(NoticeDeleteDTO::getNoticeId)
+                        .toList();
+                notificationReceiverRepository.deleteAllByIdInBatch(notificationReceivers);
+            }
         } catch (Exception e) {
             throw new RuntimeException("오류 발생 " + e.getMessage());
         }
