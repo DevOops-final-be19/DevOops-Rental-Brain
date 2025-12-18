@@ -17,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -62,7 +64,7 @@ public class QuoteCommandServiceImpl implements QuoteCommandService {
         quoteCommandCreateDTO.setQuoteId(saved.getQuoteId());
 
         // 해당 부서에 알림 전송
-        notificationPublisher.publish(new QuoteInsertedEvent(PositionType.CUSTOMER,customer.getName(),customer.getId()));
+        notificationPublisher.publish(new QuoteInsertedEvent(List.of(PositionType.CUSTOMER,PositionType.CUSTOMER_MANAGER),customer.getName(),customer.getId()));
 
         return quoteCommandCreateDTO;
     }

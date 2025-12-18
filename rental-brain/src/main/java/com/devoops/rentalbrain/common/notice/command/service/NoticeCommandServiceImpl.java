@@ -16,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -48,12 +51,18 @@ public class NoticeCommandServiceImpl implements NoticeCommandService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void noticeAllCreate(Notification notification, PositionType positionId) {
+    public void noticeAllCreate(Notification notification, List<PositionType> positionId) {
         Notification getNotice = notificationRepository.save(notification);
         log.info("알림 생성 - {}", getNotice);
 
         log.info(getNotice.toString());
-        noticeQueryMapper.getEmployeeIds(positionId.positionNum()).forEach(empId -> {
+
+        List<Long> positions = new ArrayList<>();
+
+        for(PositionType positionType : positionId){
+            positions.addAll(noticeQueryMapper.getEmployeeIds(positionType.positionNum()));
+        }
+        positions.forEach(empId->{
             notificationReceiverRepository.save(
                     NotificationReceiver.create(
                             notification.getId(),
@@ -61,7 +70,6 @@ public class NoticeCommandServiceImpl implements NoticeCommandService {
                     )
             );
         });
-
     }
 
     @Override
