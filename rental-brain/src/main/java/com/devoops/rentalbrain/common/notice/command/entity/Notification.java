@@ -22,4 +22,11 @@ public class Notification {
     private String message;
     @Column
     private String linkUrl;
+
+    public Notification(String type, String title, String message, String linkUrl) {
+        this.type = type;
+        this.title = title;
+        this.message = message;
+        this.linkUrl = linkUrl;
+    }
 }

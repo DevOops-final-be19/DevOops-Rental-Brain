@@ -62,7 +62,7 @@ public class QuoteCommandServiceImpl implements QuoteCommandService {
         quoteCommandCreateDTO.setQuoteId(saved.getQuoteId());
 
         // 해당 부서에 알림 전송
-        notificationPublisher.publish(new QuoteInsertedEvent(PositionType.CUSTOMER));
+        notificationPublisher.publish(new QuoteInsertedEvent(PositionType.CUSTOMER,customer.getName(),customer.getId()));
 
         return quoteCommandCreateDTO;
     }

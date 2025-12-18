@@ -1,5 +1,6 @@
 package com.devoops.rentalbrain.common.notice.application.strategy;
 
+import com.devoops.rentalbrain.common.notice.application.factory.NoticeMessageFactory;
 import com.devoops.rentalbrain.common.notice.application.strategy.event.QuoteInsertedEvent;
 import com.devoops.rentalbrain.common.notice.command.service.NoticeCommandService;
 import com.devoops.rentalbrain.common.notice.query.mapper.NoticeQueryMapper;
@@ -12,23 +13,20 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class QuoteInsertedStrategy {
     private final NoticeCommandService noticeCommandService;
-    private final NoticeQueryMapper noticeQueryMapper;
+    private final NoticeMessageFactory noticeMessageFactory;
 
     public QuoteInsertedStrategy(NoticeCommandService noticeCommandService,
-                                 NoticeQueryMapper noticeQueryMapper) {
+                                 NoticeMessageFactory noticeMessageFactory) {
         this.noticeCommandService = noticeCommandService;
-        this.noticeQueryMapper = noticeQueryMapper;
+        this.noticeMessageFactory = noticeMessageFactory;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(QuoteInsertedEvent quoteInsertedEvent){
         log.info("QuoteInsertedStrategy EventListener 호출");
-        noticeQueryMapper.getEmployeeIds(quoteInsertedEvent.positionId().positionNum()).forEach(empId -> {
-            log.info(empId.toString());
-            noticeCommandService.noticeCreate(
-                    "QUOTE_INSERT",
-                    empId
-            );
-        });
+        noticeCommandService.noticeAllCreate(
+                noticeMessageFactory.quoteInsertedCreate(quoteInsertedEvent),
+                quoteInsertedEvent.positionId()
+        );
     }
 }
