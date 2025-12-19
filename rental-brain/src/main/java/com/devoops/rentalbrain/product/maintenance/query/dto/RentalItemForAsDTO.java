@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @ToString
 public class RentalItemForAsDTO {
 
+    private Long itemId;
     private String itemCode;
     private String itemName;
     private String itemStatus;
