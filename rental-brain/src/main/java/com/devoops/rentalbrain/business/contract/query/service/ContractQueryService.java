@@ -10,5 +10,7 @@ public interface ContractQueryService {
     ContractSummaryDTO getContractSummary();
     ContractBasicInfoDTO getContractBasicInfo(Long contractId);
     ContractItemInfoDTO getContractItemInfo(Long contractId);
+    List<ContractPaymentDTO> getContractPayments(Long contractId);
+    List<RentalProductInfoDTO> getRentalProductList(Long contractId);
 
 }

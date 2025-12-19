@@ -86,5 +86,14 @@ public class ContractQueryServiceImpl implements ContractQueryService {
         return dto;
     }
 
+    @Override
+    public List<ContractPaymentDTO> getContractPayments(Long contractId) {
+        return contractDetailQueryMapper.selectContractPaymentDetail(contractId);
+    }
+
+    @Override
+    public List<RentalProductInfoDTO> getRentalProductList(Long contractId) {
+        return contractQueryMapper.selectRentalProductList(contractId);
+    }
 
 }
