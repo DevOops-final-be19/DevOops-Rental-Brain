@@ -9,16 +9,17 @@
             parameterType="long"
             resultType="com.devoops.rentalbrain.product.maintenance.query.dto.RentalItemForAsDTO">
         SELECT
-        A.item_code AS itemCode,
-        A.STATUS AS itemStatus,
-        A.NAME AS itemName,
-        A.repair_cost AS repairCost,
-        A.LAST_INSPECT_DATE AS lastInspectDate
+            A.ID AS itemId,
+            A.item_code AS itemCode,
+            A.NAME AS itemName,
+            A.STATUS AS itemStatus,
+            A.repair_cost AS repairCost,
+            A.LAST_INSPECT_DATE AS lastInspectDate
         FROM item A
-        JOIN contract_with_item B ON A.ID = B.ITEM_ID
-        JOIN contract C ON B.CONTRACT_ID = C.ID
+                 JOIN contract_with_item B ON A.ID = B.ITEM_ID
+                 JOIN contract C ON B.CONTRACT_ID = C.ID
         WHERE C.CUM_ID = #{customerId}
-        AND C.STATUS IN ('P', 'I');
+          AND C.STATUS IN ('P', 'I')
 
     </select>
 
