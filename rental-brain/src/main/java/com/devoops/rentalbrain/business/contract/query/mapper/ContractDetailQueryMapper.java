@@ -1,9 +1,6 @@
 package com.devoops.rentalbrain.business.contract.query.mapper;
 
-import com.devoops.rentalbrain.business.contract.query.dto.ContractItemDetailDTO;
-import com.devoops.rentalbrain.business.contract.query.dto.ContractItemSummaryDTO;
-import com.devoops.rentalbrain.business.contract.query.dto.ContractOverviewDTO;
-import com.devoops.rentalbrain.business.contract.query.dto.ContractProgressDTO;
+import com.devoops.rentalbrain.business.contract.query.dto.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -38,6 +35,11 @@ public interface ContractDetailQueryMapper {
 
     /* 아이템 상세 */
     List<ContractItemDetailDTO> selectContractItemDetails(
+            @Param("contractId") Long contractId
+    );
+
+    /* 결제내역 상세*/
+    List<ContractPaymentDTO> selectContractPaymentDetail(
             @Param("contractId") Long contractId
     );
 }

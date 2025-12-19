@@ -104,4 +104,14 @@
                  JOIN item i ON cwi.item_id = i.id
         WHERE cwi.contract_id = #{contractId}
     </select>
+    <!-- =========================
+         계약 결제 내역 조회
+         ========================= -->
+    <select id="selectContractPaymentDetail"
+            parameterType="long"
+            resultType="com.devoops.rentalbrain.business.contract.query.dto.ContractPaymentDTO">
+        SELECT id, payment_due, payment_actual, overdue_days, payment_status, con_id
+        FROM payment_details
+        WHERE con_id = #{contractId}
+    </select>
 </mapper>
