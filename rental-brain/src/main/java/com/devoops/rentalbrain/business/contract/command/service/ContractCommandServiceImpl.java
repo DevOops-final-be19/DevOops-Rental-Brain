@@ -140,8 +140,14 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         approval.setStatus("P"); // 승인 대기
         approval.setContract(savedContract);
 
+        Long requestEmpId = RequestEmpId(
+                dto.getMemId(),
+                dto.getLeaderId(),
+                dto.getCeoId()
+        );
+
         Employee employeeRef =
-                entityManager.getReference(Employee.class, dto.getCumId());
+                entityManager.getReference(Employee.class, requestEmpId);
         approval.setEmployee(employeeRef);
 
         ApprovalCommandEntity savedApproval =
@@ -302,6 +308,19 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         contract.setStatus("W");
     }
 
+    private Long RequestEmpId(
+            Long memId, Long leaderId, Long ceoId
+    ){
+        if (memId != null){
+            return memId;
+        }
+        if (leaderId != null){
+            return leaderId;
+        }
+        if (ceoId != null){
+            return ceoId;
+        }
 
+        throw new BusinessException( ErrorCode.CONTRACT_INVALID_APPROVAL_REQUEST, "결재 요청자를 지정할 수 없습니다 (memId, leaderId, ceoId 모두 null)" );}
 
 }
