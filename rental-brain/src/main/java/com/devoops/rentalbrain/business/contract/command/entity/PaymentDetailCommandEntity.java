@@ -1,10 +1,7 @@
 package com.devoops.rentalbrain.business.contract.command.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +10,8 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @NoArgsConstructor
-@ToString
+@AllArgsConstructor
+@Builder
 public class PaymentDetailCommandEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,4 +49,6 @@ public class PaymentDetailCommandEntity {
      */
     @Column(name = "con_id", nullable = false)
     private Long contractId;
+
+
 }
