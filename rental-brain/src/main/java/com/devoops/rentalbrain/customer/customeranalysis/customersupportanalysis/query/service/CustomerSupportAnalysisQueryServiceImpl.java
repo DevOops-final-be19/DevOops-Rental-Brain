@@ -37,7 +37,7 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                 LocalDate.of(base.getYear(), 1, 1).atStartOfDay();
 
         // =====================================================
-        // KPI 1️⃣ 총 응대 건수 (유형별 + YTD + 전월 대비)
+        // KPI 1️ 총 응대 건수 (유형별 + YTD + 전월 대비)
         // =====================================================
 
         // 이번달 / 전월
@@ -73,7 +73,7 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                         .build();
 
         // =====================================================
-        // KPI 2️⃣ 응대 효율 (완료율 + 평균 응대 시간)
+        // KPI 2️ 응대 효율 (완료율 + 평균 응대 시간)
         // =====================================================
 
         long inquiryDoneCurr = mapper.countSupportDone(currStart, currEnd);
@@ -104,7 +104,7 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                         .build();
 
         // =====================================================
-        // KPI 3️⃣ 고객 만족도 지수
+        // KPI 3️ 고객 만족도 지수
         // =====================================================
 
         double avgScoreCurr = nvl(mapper.avgFeedbackStar(currStart, currEnd));
@@ -130,10 +130,7 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                         .lowScoreRatioMomP(round1(lowRatioCurr - lowRatioPrev))    // %p 차이
                         .build();
 
-        // =====================================================
         // RESPONSE
-        // =====================================================
-
         return CustomerSupportAnalysisQueryResponseKPIDTO.builder()
                 .targetMonth(targetMonth)
                 .previousMonth(base.minusMonths(1).toString().substring(0, 7))
@@ -143,9 +140,9 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                 .build();
     }
 
-    // =====================================================
+
     // Helpers
-    // =====================================================
+
 
     private CustomerSupportAnalysisQueryTypeCountDTO typeRow(
             String type, long curr, long prev
@@ -155,11 +152,12 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
                 .currentCount(curr)
                 .previousCount(prev)
                 .deltaCount(curr - prev)
-                .momPercent(momPercent(curr, prev)) // ✅ prev=0이면 0.0, null 없음
+                .momPercent(momPercent(curr, prev)) // prev=0이면 0.0, null 없음
                 .build();
     }
 
-    /** MoM 변화율(%) = (curr-prev)/prev * 100  / prev=0이면 0.0 */
+
+    /* MoM 변화율(%) = (curr-prev)/prev * 100  / prev=0이면 0.0 */
     private double momPercent(long curr, long prev) {
         if (prev == 0) return 0.0;
         return round1(((curr - prev) * 100.0) / (double) prev);
@@ -170,12 +168,24 @@ public class CustomerSupportAnalysisQueryServiceImpl implements CustomerSupportA
         return round1(((curr - prev) * 100.0) / prev);
     }
 
-    /** 평균 등 Double로 올 수 있는 값 null 방지 */
+    /* 평균 등 Double로 올 수 있는 값 null 방지 */
     private double nvl(Double v) {
         return v == null ? 0.0 : v;
     }
 
     private double round1(double v) {
         return Math.round(v * 10.0) / 10.0;
+    }
+
+    // 고객 응대 분석 트랜드 차트
+    @Override
+    public CustomerSupportAnalysisMonthlyTrendResponseDTO getMonthlyTrend(int year) {
+
+        List<CustomerSupportAnalysisMonthlyTrendDTO> rows = mapper.selectMonthlyTrend(year);
+
+        return CustomerSupportAnalysisMonthlyTrendResponseDTO.builder()
+                .year(year)
+                .monthly(rows)
+                .build();
     }
 }

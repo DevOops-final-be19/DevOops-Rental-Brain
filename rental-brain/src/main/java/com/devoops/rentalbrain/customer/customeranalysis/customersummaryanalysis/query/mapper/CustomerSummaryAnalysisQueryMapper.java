@@ -1,7 +1,10 @@
 package com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.mapper;
 
 
+import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSegmentDistributionDTO;
+import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSummaryAnalysisQuerySatisfactionCustomerDTO;
 import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSummaryAnalysisQuerySatisfactionRowDTO;
+import com.devoops.rentalbrain.customer.customeranalysis.customersupportanalysis.query.dto.CustomerSupportAnalysisMonthlyTrendResponseDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -40,4 +43,15 @@ public interface CustomerSummaryAnalysisQueryMapper {
 
     CustomerSummaryAnalysisQuerySatisfactionRowDTO getSatisfaction();
 
+    long countCustomersByStar(@Param("star") int star);
+
+    List<CustomerSummaryAnalysisQuerySatisfactionCustomerDTO> selectCustomersByStarWithPaging(
+                                                                                                @Param("star") int star,
+                                                                                                @Param("offset") int offset,
+                                                                                                @Param("limit") int limit
+    );
+
+
+    // 고객 요약 분석 세그먼트 원형 차트
+    List<CustomerSegmentDistributionDTO> selectCustomerSegmentDistribution();
 }

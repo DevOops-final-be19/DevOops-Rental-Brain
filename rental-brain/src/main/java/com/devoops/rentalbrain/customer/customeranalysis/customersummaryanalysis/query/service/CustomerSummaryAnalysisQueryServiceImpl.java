@@ -1,5 +1,9 @@
 package com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.service;
 
+import com.devoops.rentalbrain.common.pagination.Criteria;
+import com.devoops.rentalbrain.common.pagination.PageResponseDTO;
+import com.devoops.rentalbrain.common.pagination.Pagination;
+import com.devoops.rentalbrain.common.pagination.PagingButtonInfo;
 import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.*;
 import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.mapper.CustomerSummaryAnalysisQueryMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +73,7 @@ public class CustomerSummaryAnalysisQueryServiceImpl implements CustomerSummaryA
         double prevStar = safeDouble(customerSummaryAnalysisQueryMapper.avgStarByMonth(prevFrom, prevTo));
         double avgStarMomDiff = round1(curStar - prevStar);
 
-        // KPI 4/5) 안정/위험 (거래 고객 기준으로 계산) ✅ FIX 핵심
+        // KPI 4/5) 안정/위험 (거래 고객 기준으로 계산)
 
         // 위험 고객 수는 snapshot 기반(월별 비교 가능)
         int curRisk = customerSummaryAnalysisQueryMapper.countMonthRiskCustomers(month);
@@ -244,6 +248,61 @@ public class CustomerSummaryAnalysisQueryServiceImpl implements CustomerSummaryA
     private double safeDouble(Double v) {
         return v == null ? 0.0 : v;
     }
+
+    // 만족도 분포 상세 조회
+    @Override
+    public PageResponseDTO<CustomerSummaryAnalysisQuerySatisfactionCustomerDTO>
+                        getCustomersByStarWithPaging(int star, Criteria criteria) {
+
+        if (star < 1 || star > 5) {
+            throw new IllegalArgumentException("star는 1~5만 가능합니다.");
+        }
+
+        // 1) 목록
+        List<CustomerSummaryAnalysisQuerySatisfactionCustomerDTO> contents =
+                customerSummaryAnalysisQueryMapper.selectCustomersByStarWithPaging(
+                        star,
+                        criteria.getOffset(),
+                        criteria.getAmount()
+                );
+
+        // 2) 전체 건수
+        long totalCount = customerSummaryAnalysisQueryMapper.countCustomersByStar(star);
+
+        // 3) 페이지 버튼 정보
+        PagingButtonInfo paging = Pagination.getPagingButtonInfo(criteria, totalCount);
+
+        return new PageResponseDTO<>(contents, totalCount, paging);
+    }
+
+    // 고객 요약 분석 세그먼트 원형 차트
+    public CustomerSegmentDistributionResponseDTO getSegmentDistribution() {
+
+        List<CustomerSegmentDistributionDTO> distribution =
+                customerSummaryAnalysisQueryMapper.selectCustomerSegmentDistribution();
+
+        long total = distribution.stream()
+                .mapToLong(CustomerSegmentDistributionDTO::getCustomerCount)
+                .sum();
+
+        if (total <= 0) {
+            return CustomerSegmentDistributionResponseDTO.builder()
+                    .totalCustomerCount(0)
+                    .segments(distribution)
+                    .build();
+        }
+
+        for (CustomerSegmentDistributionDTO distributionPercent : distribution) {
+            double percent = round1(distributionPercent.getCustomerCount() * 100.0 / total);
+            distributionPercent.setCountPercent(percent); // setter 없으면 builder로 새로 만들어도 됨
+        }
+
+        return CustomerSegmentDistributionResponseDTO.builder()
+                .totalCustomerCount(total)
+                .segments(distribution)
+                .build();
+    }
+
 
   }
 
