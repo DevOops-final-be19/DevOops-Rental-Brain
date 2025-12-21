@@ -36,7 +36,7 @@ public class EmployeeCommandController {
             }
     )
     @GetMapping("/health")
-    public String health(){
+    public String health() {
         return "I'm OK";
     }
 
@@ -49,10 +49,10 @@ public class EmployeeCommandController {
             }
     )
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO){
-        try{
-        employeeCommandService.signup(signUpDTO);
-        }catch (Exception e){
+    public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO) {
+        try {
+            employeeCommandService.signup(signUpDTO);
+        } catch (Exception e) {
             log.info("");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
@@ -68,8 +68,8 @@ public class EmployeeCommandController {
             }
     )
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody LogoutDTO logoutDTO, HttpServletRequest request){
-        employeeCommandService.logout(logoutDTO,request.getHeader("Authorization"));
+    public ResponseEntity<?> logout(@RequestBody LogoutDTO logoutDTO, HttpServletRequest request) {
+        employeeCommandService.logout(logoutDTO, request.getHeader("Authorization"));
         return ResponseEntity.ok().body("로그아웃 완료");
     }
 
@@ -83,8 +83,12 @@ public class EmployeeCommandController {
             }
     )
     @PutMapping("/admin/auth/modify")
-    public ResponseEntity<?> modifyAuth(@RequestBody List<EmployeeAuthDTO> employeeAuthDTO){
-        employeeCommandService.modifyAuth(employeeAuthDTO);
+    public ResponseEntity<?> modifyAuth(@RequestBody EmployeeAuthDTO employeeAuthDTO) {
+        try {
+            employeeCommandService.modifyAuth(employeeAuthDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
         return ResponseEntity.ok().body("Done");
     }
 
@@ -97,10 +101,10 @@ public class EmployeeCommandController {
             }
     )
     @PutMapping("/modify")
-    public ResponseEntity<?> modifyEmpInfo(@RequestBody EmployeeInfoModifyDTO employeeInfoModifyDTO){
+    public ResponseEntity<?> modifyEmpInfo(@RequestBody EmployeeInfoModifyDTO employeeInfoModifyDTO) {
         try {
             employeeCommandService.modifyEmpInfo(employeeInfoModifyDTO);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok().body("Done");
@@ -116,10 +120,10 @@ public class EmployeeCommandController {
             }
     )
     @PutMapping("/admin/info/modify")
-    public ResponseEntity<?> modifyEmpInfoByAdmin(@RequestBody EmployeeInfoModifyByAdminDTO employeeInfoModifyByAdminDTO){
-        try{
+    public ResponseEntity<?> modifyEmpInfoByAdmin(@RequestBody EmployeeInfoModifyByAdminDTO employeeInfoModifyByAdminDTO) {
+        try {
             employeeCommandService.modifyEmpInfoByAdmin(employeeInfoModifyByAdminDTO);
-        } catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok().body("Done");
@@ -134,10 +138,10 @@ public class EmployeeCommandController {
             }
     )
     @PutMapping("/pwdmodify")
-    public ResponseEntity<?> modifyEmpPwd(@RequestBody EmployeePasswordModifyDTO employeePasswordModifyDTO){
+    public ResponseEntity<?> modifyEmpPwd(@RequestBody EmployeePasswordModifyDTO employeePasswordModifyDTO) {
         try {
             employeeCommandService.modifyEmpPwd(employeePasswordModifyDTO);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
         return ResponseEntity.ok().body("Done");
