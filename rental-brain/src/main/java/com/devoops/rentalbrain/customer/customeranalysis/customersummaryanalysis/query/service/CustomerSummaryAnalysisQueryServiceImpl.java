@@ -33,7 +33,7 @@ public class CustomerSummaryAnalysisQueryServiceImpl implements CustomerSummaryA
         }
 
         final int POTENTIAL_SEGMENT_ID = 1;   // 잠재 고객
-        final int RISK_SEGMENT_ID = 4;        // 이탈 위험 고객
+//        final int RISK_SEGMENT_ID = 4;        // 이탈 위험 고객, 여기서는 잠재랑 블랙만 제외
         final int BLACKLIST_SEGMENT_ID = 6;   // 블랙리스트 고객
 
         YearMonth curYm = YearMonth.parse(month);
