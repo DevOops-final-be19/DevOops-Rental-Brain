@@ -1,9 +1,8 @@
 package com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.service;
 
-import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.ChurnKpiCardResponseDTO;
-import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSummaryAnalysisQuerySatisfactionDTO;
-import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.MonthlyRiskRateResponseDTO;
-import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSummaryAnalysisQueryKPIDTO;
+import com.devoops.rentalbrain.common.pagination.Criteria;
+import com.devoops.rentalbrain.common.pagination.PageResponseDTO;
+import com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.*;
 
 import java.util.List;
 
@@ -17,4 +16,7 @@ public interface CustomerSummaryAnalysisQueryService {
 
     CustomerSummaryAnalysisQuerySatisfactionDTO getSatisfaction();
 
+    PageResponseDTO<CustomerSummaryAnalysisQuerySatisfactionCustomerDTO> getCustomersByStarWithPaging(int star, Criteria criteria);
+
+    CustomerSegmentDistributionResponseDTO getSegmentDistribution();
 }

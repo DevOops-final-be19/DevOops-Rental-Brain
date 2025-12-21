@@ -47,7 +47,7 @@
     </select>
 
 
-    <!-- ✅ ADD: 평균 거래액(월) = 고객당 평균 월 과금액 (monthly_payment 기반) -->
+    <!-- 평균 거래액(월) = 고객당 평균 월 과금액 (monthly_payment 기반) -->
     <select id="avgMonthlyPaymentByMonth" resultType="long">
         SELECT
                COALESCE(ROUND(SUM(A.monthly_payment) / NULLIF(COUNT(DISTINCT A.cum_id), 0), 0), 0)
@@ -97,9 +97,64 @@
         COALESCE(SUM(CASE WHEN A.star = 1 THEN 1 ELSE 0 END), 0) AS star1Count,
         COALESCE(COUNT(*), 0) AS totalCount
         FROM feedback A
-
     </select>
 
+    <!-- MAX로 제일 최근 뽑아서 그 고객에 대해서 평점 찾기 -->
+    <select id="countCustomersByStar" resultType="long">
+        SELECT
+               COUNT(*)
+          FROM (
+                SELECT A.cum_id
+                FROM feedback A
+                JOIN (
+                        SELECT cum_id, MAX(create_date) AS max_dt
+                        FROM feedback
+                        GROUP BY cum_id
+                       ) B ON A.cum_id = B.cum_id
+            AND A.create_date = B.max_dt
+          WHERE A.star = #{star}
+        ) t
+    </select>
 
+    <!-- 만족도 분포 상세 조회 페이징 -->
+    <select id="selectCustomersByStarWithPaging"
+            resultType="com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSummaryAnalysisQuerySatisfactionCustomerDTO">
+        SELECT
+                C.id            AS customerId,
+                C.customer_code AS customerCode,
+                C.name          AS customerName,
+                A.star          AS star,
+                A.create_date   AS createDate
+           FROM feedback A
+           JOIN (
+                SELECT
+                        cum_id,
+                        MAX(create_date) AS max_dt
+                FROM feedback
+                GROUP BY cum_id
+                ) B
+             ON A.cum_id = B.cum_id
+            AND A.create_date = B.max_dt
+           JOIN customer C
+             ON C.id = A.cum_id
+          WHERE A.star = #{star}
+          ORDER BY A.create_date DESC, C.id DESC
+          LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 고객 요약 분석의 원형 차트 -->
+    <select id="selectCustomerSegmentDistribution"
+            resultType="com.devoops.rentalbrain.customer.customeranalysis.customersummaryanalysis.query.dto.CustomerSegmentDistributionDTO">
+
+        SELECT
+                B.id   AS segmentId,
+                B.name AS segmentName,
+                COUNT(A.id) AS customerCount
+        FROM customer A
+        JOIN segment B ON B.id = A.segment_id
+        WHERE A.is_deleted = 'N'
+        GROUP BY B.id, B.name
+        ORDER BY segmentId ASC
+    </select>
 
 </mapper>

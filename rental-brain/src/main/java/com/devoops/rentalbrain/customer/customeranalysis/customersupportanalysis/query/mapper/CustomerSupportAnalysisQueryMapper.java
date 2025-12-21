@@ -1,9 +1,11 @@
 package com.devoops.rentalbrain.customer.customeranalysis.customersupportanalysis.query.mapper;
 
+import com.devoops.rentalbrain.customer.customeranalysis.customersupportanalysis.query.dto.CustomerSupportAnalysisMonthlyTrendDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface CustomerSupportAnalysisQueryMapper {
@@ -25,5 +27,9 @@ public interface CustomerSupportAnalysisQueryMapper {
     long countFeedbackStarTotal(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
     long countFeedbackLowStar(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end,
                               @Param("threshold") double threshold); // 2.5
+
+
+    // 고객 응대 분석 트랜드 차트
+    List<CustomerSupportAnalysisMonthlyTrendDTO> selectMonthlyTrend(@Param("year") int year);
 
 }
