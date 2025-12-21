@@ -95,6 +95,10 @@ public class ContractCommandServiceImpl implements ContractCommandService {
     @Override
     @Transactional
     public void createContract(ContractCreateDTO dto) {
+
+        /* =====================
+       0. 로그인 사용자 검증
+       ===================== */
         // 계약생성
 
         // DTO → Entity 매핑
