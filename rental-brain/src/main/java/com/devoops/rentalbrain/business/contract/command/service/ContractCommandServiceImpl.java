@@ -9,26 +9,30 @@ import com.devoops.rentalbrain.business.contract.command.dto.ContractItemDTO;
 import com.devoops.rentalbrain.business.contract.command.dto.ContractUpdateDTO;
 import com.devoops.rentalbrain.business.contract.command.entity.ContractCommandEntity;
 import com.devoops.rentalbrain.business.contract.command.entity.ContractItemCommandEntity;
+import com.devoops.rentalbrain.business.contract.command.entity.PaymentDetailCommandEntity;
 import com.devoops.rentalbrain.business.contract.command.repository.ContractCommandRepository;
 import com.devoops.rentalbrain.business.contract.command.repository.ContractItemCommandRepository;
+import com.devoops.rentalbrain.business.contract.command.repository.PaymentDetailCommandRepository;
 import com.devoops.rentalbrain.common.codegenerator.CodeGenerator;
 import com.devoops.rentalbrain.common.codegenerator.CodeType;
 import com.devoops.rentalbrain.common.error.ErrorCode;
 import com.devoops.rentalbrain.common.error.exception.BusinessException;
 import com.devoops.rentalbrain.customer.customerlist.command.entity.CustomerlistCommandEntity;
+import com.devoops.rentalbrain.employee.command.dto.UserImpl;
 import com.devoops.rentalbrain.employee.command.entity.Employee;
 import com.devoops.rentalbrain.product.productlist.command.repository.ItemRepository;
-import com.devoops.rentalbrain.security.SecurityUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,7 +44,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
     private final ItemRepository itemRepository;
     private final ContractItemCommandRepository contractItemCommandRepository;
     private final ApprovalMappingCommandRepository approvalMappingCommandRepository;
-    private final ModelMapper modelMapper;
+    private final PaymentDetailCommandRepository paymentDetailCommandRepository;
     private final CodeGenerator codeGenerator;
 
     @PersistenceContext
@@ -53,7 +57,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
             ItemRepository itemRepository,
             ContractItemCommandRepository contractItemCommandRepository,
             ApprovalMappingCommandRepository approvalMappingCommandRepository,
-            ModelMapper modelMapper,
+            PaymentDetailCommandRepository paymentDetailCommandRepository,
             CodeGenerator codeGenerator
     ) {
         this.contractCommandRepository = contractCommandRepository;
@@ -61,7 +65,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         this.itemRepository = itemRepository;
         this.contractItemCommandRepository = contractItemCommandRepository;
         this.approvalMappingCommandRepository = approvalMappingCommandRepository;
-        this.modelMapper = modelMapper;
+        this.paymentDetailCommandRepository = paymentDetailCommandRepository;
         this.codeGenerator = codeGenerator;
     }
 
@@ -72,7 +76,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
      * P(진행중) → I(만료임박, 1개월 전) → C(계약만료)
      */
     @Override
-    @Scheduled(cron = "0 0 1 * * *") // 매일 새벽 1시
+    @Scheduled(cron = "0 0 6 * * *")
     @Transactional
     public void updateContractStatus() {
 
@@ -100,15 +104,28 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         /* =====================
        0. 로그인 사용자 검증
        ===================== */
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserImpl user)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        Long loginEmpId;
+        try {
+            loginEmpId = user.getId();
+        } catch (NumberFormatException e) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
 
-        Long loginEmpId = SecurityUtil.getCurrentEmpId();
         Employee loginEmp = entityManager.find(Employee.class, loginEmpId);
-
         if (loginEmp == null) {
             throw new BusinessException(ErrorCode.UNAUTHORIZED);
         }
 
-        long positionId = loginEmp.getPositionId();
+        int positionId = Math.toIntExact(loginEmp.getPositionId());
 
          /* =====================
        1. 요청 기반 역할 판단
@@ -226,7 +243,8 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         createApprovalMapping(
                 savedApproval,
                 leaderId,
-                ceoId
+                ceoId,
+                loginEmpId
         );
 
         /* =====================
@@ -286,7 +304,8 @@ public class ContractCommandServiceImpl implements ContractCommandService {
     private void createApprovalMapping(
             ApprovalCommandEntity approval,
             Long leaderId,
-            Long ceoId
+            Long ceoId,
+            Long loginEmpId
     ) {
         ContractCommandEntity contract = approval.getContract();
 
@@ -296,15 +315,20 @@ public class ContractCommandServiceImpl implements ContractCommandService {
             ApprovalMappingCommandEntity ceoStep =
                     ApprovalMappingCommandEntity.builder()
                             .approval(approval)
-                            .employee(entityManager.getReference(Employee.class, ceoId))
+                            .employee(entityManager.getReference(Employee.class, loginEmpId))
                             .step(3)
                             .isApproved("Y")
                             .build();
 
             approvalMappingCommandRepository.save(ceoStep);
 
+            approval.setApprovalDate(LocalDateTime.now());
+            approval.setStatus("A");
+
             contract.setCurrentStep(3);
             contract.setStatus("P"); // 계약 진행
+
+            insertPaymentDetailsForContract(contract);
             return;
         }
 
@@ -314,7 +338,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
             ApprovalMappingCommandEntity leaderStep =
                     ApprovalMappingCommandEntity.builder()
                             .approval(approval)
-                            .employee(entityManager.getReference(Employee.class, leaderId))
+                            .employee(entityManager.getReference(Employee.class, loginEmpId))
                             .step(2)
                             .isApproved("Y")
                             .build();
@@ -364,6 +388,32 @@ public class ContractCommandServiceImpl implements ContractCommandService {
 
         contract.setCurrentStep(1);
         contract.setStatus("W");
+    }
+
+    private void insertPaymentDetailsForContract(ContractCommandEntity contract) {
+
+        LocalDateTime startDate = contract.getStartDate();
+        Integer periodMonths = contract.getContractPeriod();
+
+        if (startDate == null || periodMonths == null || periodMonths <= 0) {
+            throw new BusinessException(ErrorCode.INVALID_CONTRACT_PERIOD);
+        }
+
+        List<PaymentDetailCommandEntity> rows = new ArrayList<>(periodMonths);
+
+        for (int i = 0; i < periodMonths; i++) {
+            rows.add(
+                    PaymentDetailCommandEntity.builder()
+                            .paymentDue(startDate.plusMonths(i))
+                            .paymentActual(null)
+                            .overdueDays(null)
+                            .paymentStatus("P")
+                            .contractId(contract.getId())
+                            .build()
+            );
+        }
+
+        paymentDetailCommandRepository.saveAll(rows);
     }
 
 }

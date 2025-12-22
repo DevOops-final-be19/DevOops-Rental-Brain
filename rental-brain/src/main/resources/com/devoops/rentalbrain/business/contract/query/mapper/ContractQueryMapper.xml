@@ -22,11 +22,6 @@
                 AND t.status = #{status}
             </if>
 
-            <!-- 전체 조회 시 W/R 제외 -->
-            <if test="status == null or status == ''">
-                AND t.status NOT IN ('W', 'R')
-            </if>
-
             <if test="keyword != null and keyword != '' and type != null and type != ''">
                 AND
                 <foreach collection="type.split(',')" item="tp" open="(" close=")" separator=" OR ">
@@ -62,11 +57,6 @@
         <where>
             <if test="status != null and status != ''">
                 AND t.status = #{status}
-            </if>
-
-            <!-- 전체 조회 시 W/R 제외 -->
-            <if test="status == null or status == ''">
-                AND t.status NOT IN ('W', 'R')
             </if>
 
             <if test="keyword != null and keyword != '' and type != null and type != ''">
