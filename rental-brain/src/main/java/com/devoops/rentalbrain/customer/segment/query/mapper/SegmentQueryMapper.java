@@ -5,7 +5,6 @@ import com.devoops.rentalbrain.customer.segment.query.dto.SegmentQueryListDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
