@@ -11,8 +11,8 @@ import com.devoops.rentalbrain.customer.customersegmenthistory.query.dto.History
 import com.devoops.rentalbrain.customer.customersupport.query.dto.CustomersupportDTO;
 import com.devoops.rentalbrain.customer.customersupport.query.dto.FeedbackDTO;
 import com.devoops.rentalbrain.business.quote.query.dto.QuoteQueryResponseDTO;
-import com.devoops.rentalbrain.business.contract.query.dto.ContractSummaryDTO;
-import com.devoops.rentalbrain.product.maintenance.query.dto.AfterServiceSummaryDTO;
+import com.devoops.rentalbrain.business.contract.query.dto.AllContractDTO;
+import com.devoops.rentalbrain.product.maintenance.query.dto.AfterServiceDetailDTO;
 import com.devoops.rentalbrain.business.campaign.query.dto.CouponDTO;
 import com.devoops.rentalbrain.business.campaign.query.dto.PromotionDTO;
 
@@ -52,10 +52,10 @@ public interface CustomerlistQueryMapper {
     List<QuoteQueryResponseDTO> selectQuoteList(@Param("customerId") Long customerId);
 
     // 계약 내역 (Inner Class -> ContractSummaryDTO)
-    List<ContractSummaryDTO> selectContractList(@Param("customerId") Long customerId);
+    List<AllContractDTO> selectContractList(@Param("customerId") Long customerId);
 
     // AS/정기점검 내역 (Inner Class -> AfterServiceSummaryDTO)
-    List<AfterServiceSummaryDTO> selectAsList(@Param("customerId") Long customerId);
+    List<AfterServiceDetailDTO> selectAsList(@Param("customerId") Long customerId);
 
     // 쿠폰 내역 (Inner Class -> CouponDTO)
     List<CouponDTO> selectCouponList(@Param("customerId") Long customerId);
@@ -64,6 +64,6 @@ public interface CustomerlistQueryMapper {
     List<PromotionDTO> selectPromotionList(@Param("customerId") Long customerId);
 
     // 세그먼트 변경 내역
-    List<HistoryQueryDTO> selectSegmentHistory(Long customerId);
+    List<HistoryQueryDTO> selectSegmentHistory(@Param("customerId")Long customerId);
 
 }

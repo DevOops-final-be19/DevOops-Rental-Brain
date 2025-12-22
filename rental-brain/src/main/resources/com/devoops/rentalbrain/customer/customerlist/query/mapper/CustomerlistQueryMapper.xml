@@ -157,32 +157,32 @@
         ORDER BY Q.counseling_date DESC
     </select>
 
-    <select id="selectContractList" resultType="com.devoops.rentalbrain.business.contract.query.dto.ContractSummaryDTO">
+    <select id="selectContractList" resultType="com.devoops.rentalbrain.business.contract.query.dto.AllContractDTO">
         SELECT
             id,
-            contract_code AS contractCode,
-            name AS contractName,
-            status,
-            total_amount AS totalAmount,
-            start_date AS startDate,
-            contract_period AS contractPeriod
+            contract_code,      -- AllContractDTO 필드명: contract_code
+            name AS conName,    -- AllContractDTO 필드명: conName
+            status,             -- AllContractDTO 필드명: status
+            start_date,         -- AllContractDTO 필드명: start_date
+            contract_period,    -- AllContractDTO 필드명: contract_period
+            monthly_payment     -- AllContractDTO 필드명: monthly_payment
         FROM contract
         WHERE cum_id = #{customerId}
         ORDER BY start_date DESC
     </select>
 
-    <select id="selectAsList" resultType="com.devoops.rentalbrain.product.maintenance.query.dto.AfterServiceSummaryDTO">
+    <select id="selectAsList" resultType="com.devoops.rentalbrain.product.maintenance.query.dto.AfterServiceDetailDTO">
         SELECT
-            A.id,
-            A.after_service_code AS afterServiceCode,
-            A.type,
-            A.status,
-            A.due_date AS scheduleDate,
-            A.engineer AS engineerName,
-            A.contents
-        FROM after_service A
-        WHERE A.cum_id = #{customerId}
-        ORDER BY A.due_date DESC
+            id,
+            after_service_code, -- AfterServiceDetailDTO 필드명: after_service_code
+            type,
+            status,
+            due_date AS dueDate, -- AfterServiceDetailDTO 필드명: dueDate (camelCase)
+            engineer,           -- AfterServiceDetailDTO 필드명: engineer
+            contents            -- AfterServiceDetailDTO 필드명: contents
+        FROM after_service
+        WHERE cum_id = #{customerId}
+        ORDER BY due_date DESC
     </select>
 
     <select id="selectFeedbackList" resultType="com.devoops.rentalbrain.customer.customersupport.query.dto.FeedbackDTO">
