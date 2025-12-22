@@ -1,7 +1,6 @@
 package com.devoops.rentalbrain.customer.segment.query.mapper;
 
 import com.devoops.rentalbrain.customer.segment.query.dto.SegmentQueryDetailDTO;
-import com.devoops.rentalbrain.customer.customeranalysis.customersegmentanalysis.query.dto.CustomerSegmentAnalysisQueryKPIDTO;
 import com.devoops.rentalbrain.customer.segment.query.dto.SegmentQueryListDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

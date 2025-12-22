@@ -9,6 +9,7 @@ import com.devoops.rentalbrain.product.productlist.command.entity.Item;
 import com.devoops.rentalbrain.product.productlist.command.entity.ItemCategory;
 import com.devoops.rentalbrain.product.productlist.command.repository.ItemCategoryRepository;
 import com.devoops.rentalbrain.product.productlist.command.repository.ItemRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ItemCommandServiceImpl implements ItemCommandService {
     private final ModelMapper modelMapper;
     private final ItemRepository itemRepository;
@@ -45,6 +47,7 @@ public class ItemCommandServiceImpl implements ItemCommandService {
         Item item = modelMapper.map(itemDTO, Item.class);
 
         String itemCode = codeGenerator.generate(CodeType.ITEM);
+        log.info("Insert new item code: {}", itemCode);
         item.setItemCode(itemCode);
         item.setStatus("P");
         item.setSales(0);
