@@ -31,7 +31,7 @@ public class CustomerlistQueryController {
 
     private final CustomerlistQueryService queryService;
 
-    // ▼ 추가된 메서드: KPI 조회 (반드시 /{id} 메서드보다 위에 있거나 명시적인 경로여야 함)
+    // KPI 조회 (반드시 /{id} 메서드보다 위에 있거나 명시적인 경로여야 함)
     @Operation(summary = "고객 KPI 조회", description = "총 고객 수, VIP, 이탈 위험 등 KPI 지표를 조회합니다.")
     @GetMapping("/kpi")
     public ResponseEntity<CustomerKpiDTO> getKpi() {
@@ -71,6 +71,5 @@ public class CustomerlistQueryController {
     public ResponseEntity<CustomerDetailResponseDTO> detail(@PathVariable Long id) {
         return ResponseEntity.ok(queryService.getCustomerDetail(id));
     }
-
 
 }
