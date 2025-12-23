@@ -24,5 +24,5 @@ public interface PromotionMapper {
 
     long countFliterPromotionByStatus(String status);
 
-    List<PromotionWithContractDTO> useContractPromotion(String segment);
+    List<PromotionWithContractDTO> useContractPromotion(Integer segment);
 }

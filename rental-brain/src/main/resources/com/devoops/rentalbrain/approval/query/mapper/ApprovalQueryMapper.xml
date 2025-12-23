@@ -40,29 +40,37 @@
             resultType="com.devoops.rentalbrain.approval.query.dto.PendingApprovalDTO">
 
         SELECT
-        approval_mapping_id   AS approvalMappingId,
-        approver_emp_id       AS approverEmpId,
-        approval_step         AS approvalStep,
-        is_approved           AS isApproved,
-        approval_code         AS approvalCode,
-        approval_title        AS approvalTitle,
-        request_date          AS requestDate,
-        request_emp_id        AS requestEmpId,
-        employee_code         AS employeeCode,
-        employee_name         AS employeeName,
-        position_name         AS positionName
-        FROM v_approval_payment_manage
-        WHERE approver_emp_id = #{empId}
-        AND is_approved = 'U'
-
+        v.approval_mapping_id   AS approvalMappingId,
+        v.approver_emp_id       AS approverEmpId,
+        v.approval_step         AS approvalStep,
+        v.is_approved           AS isApproved,
+        v.approval_code         AS approvalCode,
+        v.approval_title        AS approvalTitle,
+        v.request_date          AS requestDate,
+        v.request_emp_id        AS requestEmpId,
+        v.employee_code         AS employeeCode,
+        v.employee_name         AS employeeName,
+        v.position_name         AS positionName
+        FROM v_approval_payment_manage v
+        WHERE v.approver_emp_id = #{empId}
+        AND v.is_approved = 'U'
+          <![CDATA[
+        AND NOT EXISTS (
+        SELECT 1
+        FROM v_approval_payment_manage prev
+        WHERE prev.approval_code = v.approval_code
+        AND prev.approval_step < v.approval_step
+                                 AND prev.is_approved != 'Y'
+        )
+          ]]>
         <if test="criteria.keyword != null and criteria.keyword != ''">
             AND (
-            approval_code LIKE CONCAT('%', #{criteria.keyword}, '%')
-            OR approval_title LIKE CONCAT('%', #{criteria.keyword}, '%')
+            v.approval_code LIKE CONCAT('%', #{criteria.keyword}, '%')
+            OR v.approval_title LIKE CONCAT('%', #{criteria.keyword}, '%')
             )
         </if>
 
-        ORDER BY request_date DESC
+        ORDER BY v.request_date DESC
         LIMIT #{criteria.amount}
         OFFSET #{criteria.offset}
 
@@ -72,14 +80,22 @@
             resultType="long">
 
         SELECT COUNT(*)
-        FROM v_approval_payment_manage
-        WHERE approver_emp_id = #{empId}
-        AND is_approved = 'U'
-
+        FROM v_approval_payment_manage v
+        WHERE v.approver_emp_id = #{empId}
+        AND v.is_approved = 'U'
+        <![CDATA[
+        AND NOT EXISTS (
+        SELECT 1
+        FROM v_approval_payment_manage prev
+        WHERE prev.approval_code = v.approval_code
+        AND prev.approval_step < v.approval_step
+                                 AND prev.is_approved != 'Y'
+        )
+          ]]>
         <if test="criteria.keyword != null and criteria.keyword != ''">
             AND (
-            approval_code LIKE CONCAT('%', #{criteria.keyword}, '%')
-            OR approval_title LIKE CONCAT('%', #{criteria.keyword}, '%')
+            v.approval_code LIKE CONCAT('%', #{criteria.keyword}, '%')
+            OR v.approval_title LIKE CONCAT('%', #{criteria.keyword}, '%')
             )
         </if>
     </select>
