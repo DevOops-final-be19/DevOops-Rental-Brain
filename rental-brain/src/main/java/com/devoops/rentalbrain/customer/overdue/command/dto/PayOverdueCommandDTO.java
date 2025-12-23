@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PayOverdueCommandDTO {
+
     private LocalDateTime paidDate;
-    private String status;
 }

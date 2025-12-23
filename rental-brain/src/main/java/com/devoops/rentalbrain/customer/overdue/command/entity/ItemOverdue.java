@@ -1,26 +1,27 @@
 package com.devoops.rentalbrain.customer.overdue.command.entity;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "pay_overdue")
+@Table(name = "item_overdue")
 @Getter
-@NoArgsConstructor
-public class PayOverdue {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ItemOverdue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "pay_overdue_code", nullable = false, unique = true)
-    private String payOverdueCode;
+    @Column(name = "item_overdue_code", nullable = false, unique = true)
+    private String itemOverdueCode;
 
-    @Column(name = "paid_date")
-    private LocalDateTime paidDate;
+    @Column(nullable = false)
+    private Integer count;
 
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
@@ -28,8 +29,8 @@ public class PayOverdue {
     @Column(name = "overdue_period", nullable = false)
     private Integer overduePeriod;
 
-    @Column(name = "status")
-    private String status; // P / C
+    @Column
+    private String status; // P: 미해결, C: 해결
 
     @Column(name = "contract_id", nullable = false)
     private Long contractId;
@@ -37,28 +38,24 @@ public class PayOverdue {
     @Column(name = "cum_id", nullable = false)
     private Long customerId;
 
-    public void resolve(LocalDateTime paidDate) {
-        this.paidDate = paidDate;
+    @Column(name = "item_id", nullable = false)
+    private Long itemId;
+
+    public void resolve() {
         this.status = "C";
     }
 
-    public void changeStatus(String status) {
-        this.status = status;
-    }
-
-    public static PayOverdue create(
+    public static ItemOverdue create(
             Long contractId,
             Long customerId,
-            LocalDateTime dueDate,
-            Integer overduePeriod
+            Integer count
     ) {
-        PayOverdue entity = new PayOverdue();
+        ItemOverdue entity = new ItemOverdue();
         entity.contractId = contractId;
         entity.customerId = customerId;
-        entity.dueDate = dueDate;
-        entity.overduePeriod = overduePeriod;
+        entity.count = count;
         entity.status = "P";
         return entity;
     }
-
 }
+
