@@ -36,6 +36,7 @@
         <result property="status" column="status"/>
         <result property="dept" column="dept"/>
         <result property="hire_date" column="hire_date"/>
+        <result property="resign_date" column="resign_date"/>
         <association property="position" javaType="com.devoops.rentalbrain.employee.query.dto.PositionDTO">
             <id property="position_id" column="position_id"/>
             <result property="position_name" column="position_name"/>
@@ -52,6 +53,11 @@
         <result property="description" column="description"/>
     </resultMap>
 
+    <resultMap id="empPositionListResultMap" type="com.devoops.rentalbrain.employee.query.dto.PositionDTO">
+        <id property="position_id" column="id"/>
+        <result property="position_name" column="position_name"/>
+    </resultMap>
+
     <select id="getUserAuth" resultType="string">
         SELECT
                c.auth
@@ -62,6 +68,7 @@
             ON a.auth_id = c.id
          WHERE a.emp_id = #{empId}
     </select>
+
     <select id="getEmpInfoPage" resultMap="empInfoPageResultMap">
         SELECT
                a.id,
@@ -115,6 +122,13 @@
                a.id
              , a.description
           FROM auth_list a
+    </select>
+
+    <select id="getPositionList" resultMap="empPositionListResultMap">
+        SELECT
+               a.id
+             , a.position_name
+          FROM emp_position a
     </select>
 
     <select id="getContractEmpList" resultType="com.devoops.rentalbrain.employee.query.dto.ContractEmpDTO">
