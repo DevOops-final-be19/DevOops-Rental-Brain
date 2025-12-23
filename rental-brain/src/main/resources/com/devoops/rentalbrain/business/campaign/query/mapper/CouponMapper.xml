@@ -168,4 +168,25 @@
          WHERE A.COUPON_CODE = #{couCode}
          GROUP BY A.ID, A.NAME
     </select>
+    <select id="selectEachCoupon" resultMap="getCouponMap" parameterType="string">
+        SELECT
+               A.COUPON_CODE,
+               A.NAME,
+               A.RATE,
+               A.TYPE,
+               A.MIN_FEE,
+               B.NAME AS SEGMENT_NAME,
+               A.STATUS,
+               A.START_DATE,
+               A.END_DATE,
+               A.CONTENT,
+               COUNT(C.ID) AS ISSUED,
+               COUNT(CASE WHEN C.IS_USED = 'Y' THEN 1 END) AS USED,
+               (COUNT(CASE WHEN C.IS_USED = 'Y' THEN 1 END)/COUNT(C.id))*100 AS USED_RATE
+          FROM coupon A
+          LEFT JOIN segment B ON A.SEGMENT_ID = B.ID
+          LEFT JOIN issued_coupon C ON A.ID = C.COUPON_ID
+         WHERE A.COUPON_CODE = #{couCode}
+         GROUP BY A.ID, A.NAME
+    </select>
 </mapper>

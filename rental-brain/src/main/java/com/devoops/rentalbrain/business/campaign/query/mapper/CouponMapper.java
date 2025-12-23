@@ -31,7 +31,7 @@ public interface CouponMapper {
 
     long countFliterCouponByStatus(String status);
 
-    List<CouponWithContractDTO> useContractCoupon(Integer segment);
+    List<CouponWithContractDTO> useContractCoupon(String segment);
 
     CouponDTO selectEachCoupon(String couCode);
 }
