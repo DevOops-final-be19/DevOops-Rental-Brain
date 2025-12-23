@@ -51,6 +51,11 @@
         <result property="description" column="description"/>
     </resultMap>
 
+    <resultMap id="empInChargeListResultMap" type="com.devoops.rentalbrain.employee.query.dto.InChargeDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
     <select id="getUserAuth" resultType="string">
         SELECT
                c.auth
@@ -115,6 +120,13 @@
                a.id
              , a.description
           FROM auth_list a
+    </select>
+
+    <select id="getInChargeList" resultMap="empInChargeListResultMap">
+        SELECT
+            a.id
+             , a.name
+        FROM employee a
     </select>
 
 </mapper>

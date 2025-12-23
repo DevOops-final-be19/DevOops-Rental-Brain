@@ -53,7 +53,16 @@
                 </foreach>
             </if>
         </where>
-        ORDER BY A.id DESC
+
+        <choose>
+            <when test="sortBy == 'id' and sortOrder == 'asc'">
+                ORDER BY A.id ASC
+            </when>
+            <otherwise>
+                ORDER BY A.id DESC
+            </otherwise>
+        </choose>
+
         LIMIT #{amount} OFFSET #{offset}
     </select>
 

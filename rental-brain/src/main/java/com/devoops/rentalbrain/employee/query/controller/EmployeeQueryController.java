@@ -2,6 +2,7 @@ package com.devoops.rentalbrain.employee.query.controller;
 
 import com.devoops.rentalbrain.employee.query.dto.EmpAuthListDTO;
 import com.devoops.rentalbrain.employee.query.dto.EmployeeInfoDTO;
+import com.devoops.rentalbrain.employee.query.dto.InChargeDTO;
 import com.devoops.rentalbrain.employee.query.service.EmployeeQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -64,5 +65,12 @@ public class EmployeeQueryController {
         List<EmpAuthListDTO> empAuthListDTO = employeeQueryService.getEmpAuthList();
         return ResponseEntity.ok().body(empAuthListDTO);
     }
+
+    @GetMapping("/incharge/list") // 직원 목록(admin X)
+    public ResponseEntity<List<InChargeDTO>> getInChargeList(){
+        List<InChargeDTO> inChargeDTO = employeeQueryService.getInChargeList();
+        return ResponseEntity.ok().body(inChargeDTO);
+    }
+
 
 }
