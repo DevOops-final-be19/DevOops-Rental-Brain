@@ -11,6 +11,11 @@ import java.util.List;
 public interface SegmentQueryMapper {
     // 목록 조회
     List<SegmentQueryListDTO> selectSegmentList(@Param("segmentName") String segmentName);
+
     // 디테일 조회
     SegmentQueryDetailDTO selectSegmentDetail(@Param("segmentId") Long segmentId);
+
+    // 고객목록 조회
+    List<SegmentQueryDetailDTO.SegmentCustomerDTO>
+        selectCustomersBySegmentId(@Param("segmentId") Long segmentId);
 }

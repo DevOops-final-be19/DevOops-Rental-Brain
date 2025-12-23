@@ -1,12 +1,15 @@
 package com.devoops.rentalbrain.employee.query.controller;
 
+import com.devoops.rentalbrain.employee.query.dto.EmpAuthListDTO;
 import com.devoops.rentalbrain.employee.query.dto.EmployeeInfoDTO;
+import com.devoops.rentalbrain.employee.query.dto.PositionDTO;
 import com.devoops.rentalbrain.employee.query.service.EmployeeQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +40,7 @@ public class EmployeeQueryController {
         EmployeeInfoDTO employeeInfoDTO = employeeQueryService.getEmpInfoPage();
 //        log.info(employeeInfoDTO.toString());
         if(employeeInfoDTO == null){
-            return ResponseEntity.ok().body("잘못된 접근입니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 접근입니다.");
         }
         return ResponseEntity.ok().body(employeeInfoDTO);
     }
@@ -55,6 +58,18 @@ public class EmployeeQueryController {
     public ResponseEntity<List<EmployeeInfoDTO>> getEmpList(){
         List<EmployeeInfoDTO> employeeInfoDTO = employeeQueryService.getEmpList();
         return ResponseEntity.ok().body(employeeInfoDTO);
+    }
+
+    @GetMapping("/admin/empauthlist")
+    public ResponseEntity<List<EmpAuthListDTO>> getEmpAuthList(){
+        List<EmpAuthListDTO> empAuthListDTO = employeeQueryService.getEmpAuthList();
+        return ResponseEntity.ok().body(empAuthListDTO);
+    }
+
+    @GetMapping("/admin/positionlist")
+    public ResponseEntity<List<PositionDTO>> getPositionList(){
+        List<PositionDTO> positionDTO = employeeQueryService.getPositionList();
+        return ResponseEntity.ok().body(positionDTO);
     }
 
 }

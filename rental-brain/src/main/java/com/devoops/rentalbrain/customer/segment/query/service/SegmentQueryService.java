@@ -11,4 +11,5 @@ public interface SegmentQueryService {
     List<SegmentQueryListDTO> selectSegmentList(String segmentName);
 
     SegmentQueryDetailDTO selectSegmentDetail(Long segmentId);
+
 }
