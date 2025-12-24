@@ -110,7 +110,7 @@ public class PromotionQueryController {
             }
     )
     @GetMapping("/use-contract/{segment}")
-    public ResponseEntity<List<PromotionWithContractDTO>> useContract(@PathVariable String segment) {
+    public ResponseEntity<List<PromotionWithContractDTO>> useContract(@PathVariable Integer segment) {
         List<PromotionWithContractDTO> promotionList = promotionQueryService.useContractPromotion(segment);
         return ResponseEntity.ok().body(promotionList);
     }

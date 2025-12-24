@@ -9,28 +9,33 @@ import com.devoops.rentalbrain.business.contract.command.dto.ContractItemDTO;
 import com.devoops.rentalbrain.business.contract.command.dto.ContractUpdateDTO;
 import com.devoops.rentalbrain.business.contract.command.entity.ContractCommandEntity;
 import com.devoops.rentalbrain.business.contract.command.entity.ContractItemCommandEntity;
+import com.devoops.rentalbrain.business.contract.command.entity.PaymentDetailCommandEntity;
 import com.devoops.rentalbrain.business.contract.command.repository.ContractCommandRepository;
 import com.devoops.rentalbrain.business.contract.command.repository.ContractItemCommandRepository;
+import com.devoops.rentalbrain.business.contract.command.repository.PaymentDetailCommandRepository;
 import com.devoops.rentalbrain.common.codegenerator.CodeGenerator;
 import com.devoops.rentalbrain.common.codegenerator.CodeType;
 import com.devoops.rentalbrain.common.error.ErrorCode;
 import com.devoops.rentalbrain.common.error.exception.BusinessException;
 import com.devoops.rentalbrain.common.segmentrebuild.command.service.SegmentTransitionCommandService;
 import com.devoops.rentalbrain.customer.customerlist.command.entity.CustomerlistCommandEntity;
+import com.devoops.rentalbrain.employee.command.dto.UserImpl;
 import com.devoops.rentalbrain.employee.command.entity.Employee;
 import com.devoops.rentalbrain.product.productlist.command.repository.ItemRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -42,7 +47,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
     private final ItemRepository itemRepository;
     private final ContractItemCommandRepository contractItemCommandRepository;
     private final ApprovalMappingCommandRepository approvalMappingCommandRepository;
-    private final ModelMapper modelMapper;
+    private final PaymentDetailCommandRepository paymentDetailCommandRepository;
     private final CodeGenerator codeGenerator;
     private final SegmentTransitionCommandService segmentTransitionCommandService;
 
@@ -56,15 +61,16 @@ public class ContractCommandServiceImpl implements ContractCommandService {
             ItemRepository itemRepository,
             ContractItemCommandRepository contractItemCommandRepository,
             ApprovalMappingCommandRepository approvalMappingCommandRepository,
-            ModelMapper modelMapper,
+            PaymentDetailCommandRepository paymentDetailCommandRepository,
             CodeGenerator codeGenerator,
-            SegmentTransitionCommandService segmentTransitionCommandService) {
+            SegmentTransitionCommandService segmentTransitionCommandService
+    ) {
         this.contractCommandRepository = contractCommandRepository;
         this.approvalCommandRepository = approvalCommandRepository;
         this.itemRepository = itemRepository;
         this.contractItemCommandRepository = contractItemCommandRepository;
         this.approvalMappingCommandRepository = approvalMappingCommandRepository;
-        this.modelMapper = modelMapper;
+        this.paymentDetailCommandRepository = paymentDetailCommandRepository;
         this.codeGenerator = codeGenerator;
         this.segmentTransitionCommandService = segmentTransitionCommandService;
     }
@@ -76,7 +82,7 @@ public class ContractCommandServiceImpl implements ContractCommandService {
      * P(진행중) → I(만료임박, 1개월 전) → C(계약만료)
      */
     @Override
-    @Scheduled(cron = "0 0 1 * * *") // 매일 새벽 1시
+    @Scheduled(cron = "0 0 6 * * *")
     @Transactional
     public void updateContractStatus() {
 
@@ -100,7 +106,92 @@ public class ContractCommandServiceImpl implements ContractCommandService {
     @Override
     @Transactional
     public void createContract(ContractCreateDTO dto) {
-        // 계약생성
+
+        /* =====================
+       0. 로그인 사용자 검증
+       ===================== */
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserImpl user)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        Long loginEmpId;
+        try {
+            loginEmpId = user.getId();
+        } catch (NumberFormatException e) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Employee loginEmp = entityManager.find(Employee.class, loginEmpId);
+        if (loginEmp == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+
+        int positionId = Math.toIntExact(loginEmp.getPositionId());
+
+         /* =====================
+       1. 요청 기반 역할 판단
+       ===================== */
+
+        Long leaderId = dto.getLeaderId();
+        Long ceoId = dto.getCeoId();
+
+        // 대표
+        boolean isCeoRequest = leaderId == null && ceoId == null;
+
+        // 팀장
+        boolean isLeaderRequest = leaderId == null && ceoId != null;
+
+        // 팀원
+        boolean isMemberRequest = leaderId != null && ceoId != null;
+
+        /* =====================
+       2. 역할 + 직급 검증
+       ===================== */
+
+        // 대표
+        if (isCeoRequest) {
+            if (positionId != 1) {
+                throw new BusinessException(
+                        ErrorCode.FORBIDDEN,
+                        "대표만 결재선 없이 계약을 생성할 수 있습니다."
+                );
+            }
+        }
+
+        // 팀장
+        else if (isLeaderRequest) {
+            if (!List.of(2, 3, 4).contains(positionId)) {
+                throw new BusinessException(
+                        ErrorCode.FORBIDDEN,
+                        "팀장만 CEO 결재 계약을 생성할 수 있습니다."
+                );
+            }
+        }
+
+        // 팀원
+        else if (isMemberRequest) {
+            if (!List.of(5, 6, 7).contains(positionId)) {
+                throw new BusinessException(
+                        ErrorCode.FORBIDDEN,
+                        "팀원만 팀장 + CEO 결재 계약을 생성할 수 있습니다."
+                );
+            }
+        }
+
+        else {
+            throw new BusinessException(
+                    ErrorCode.CONTRACT_INVALID_APPROVAL_REQUEST,
+                    "잘못된 결재선 요청입니다."
+            );
+        }
+        /* =====================
+            2. 계약 생성
+       ===================== */
 
         // DTO → Entity 매핑
         ContractCommandEntity contract = new ContractCommandEntity();
@@ -112,14 +203,14 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         contract.setPayMethod(dto.getPayMethod());
         contract.setSpecialContent(dto.getSpecialContent());
 
-        // 상태값 세팅
-        contract.setStatus("W");       // 결제대기
-        contract.setCurrentStep(1);    // 승인 1단계 시작
-
         // 계약 코드 생성
         contract.setContractCode(
                 codeGenerator.generate(CodeType.CONTRACT)
         );
+
+        // 상태값 세팅
+        contract.setStatus(isCeoRequest ? "P" : "W");
+        contract.setCurrentStep(1);
 
         CustomerlistCommandEntity customerRef =
                 entityManager.getReference(
@@ -133,7 +224,10 @@ public class ContractCommandServiceImpl implements ContractCommandService {
                 contractCommandRepository.save(contract);
 
 
-        // 결제생성
+        /* =====================
+             4. 승인 생성
+       ===================== */
+
         ApprovalCommandEntity approval = new ApprovalCommandEntity();
 
         approval.setApprovalCode(
@@ -145,18 +239,18 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         approval.setStatus("P"); // 승인 대기
         approval.setContract(savedContract);
 
-        Employee employeeRef =
-                entityManager.getReference(Employee.class, dto.getMemId());     // cumId -> MemId
-        approval.setEmployee(employeeRef);
+        approval.setEmployee(
+                entityManager.getReference(Employee.class, loginEmpId)
+        );
 
         ApprovalCommandEntity savedApproval =
                 approvalCommandRepository.save(approval);
 
         createApprovalMapping(
                 savedApproval,
-                dto.getMemId(),
-                dto.getLeaderId(),
-                dto.getCeoId()
+                leaderId,
+                ceoId,
+                loginEmpId
         );
 
         /* =====================
@@ -240,37 +334,42 @@ public class ContractCommandServiceImpl implements ContractCommandService {
 
     private void createApprovalMapping(
             ApprovalCommandEntity approval,
-            Long memId,
             Long leaderId,
-            Long ceoId
+            Long ceoId,
+            Long loginEmpId
     ) {
         ContractCommandEntity contract = approval.getContract();
 
-        // case 1: CEO만 존재
-        if (memId == null && leaderId == null && ceoId != null) {
+        // case 1: CEO
+        if (leaderId == null && ceoId == null) {
 
             ApprovalMappingCommandEntity ceoStep =
                     ApprovalMappingCommandEntity.builder()
                             .approval(approval)
-                            .employee(entityManager.getReference(Employee.class, ceoId))
+                            .employee(entityManager.getReference(Employee.class, loginEmpId))
                             .step(3)
                             .isApproved("Y")
                             .build();
 
             approvalMappingCommandRepository.save(ceoStep);
 
+            approval.setApprovalDate(LocalDateTime.now());
+            approval.setStatus("A");
+
             contract.setCurrentStep(3);
             contract.setStatus("P"); // 계약 진행
+
+            insertPaymentDetailsForContract(contract);
             return;
         }
 
-        // case 2: 리더 + CEO만 존재
-        if (memId == null && leaderId != null && ceoId != null) {
+        // case 2: 팀장
+        if (leaderId == null && ceoId != null) {
 
             ApprovalMappingCommandEntity leaderStep =
                     ApprovalMappingCommandEntity.builder()
                             .approval(approval)
-                            .employee(entityManager.getReference(Employee.class, leaderId))
+                            .employee(entityManager.getReference(Employee.class, loginEmpId))
                             .step(2)
                             .isApproved("Y")
                             .build();
@@ -293,20 +392,10 @@ public class ContractCommandServiceImpl implements ContractCommandService {
         }
 
         // case 3: mem + leader + ceo (기본)
-        Employee memRef =
-                entityManager.getReference(Employee.class, memId);
         Employee leaderRef =
                 entityManager.getReference(Employee.class, leaderId);
         Employee ceoRef =
                 entityManager.getReference(Employee.class, ceoId);
-
-        ApprovalMappingCommandEntity memStep =
-                ApprovalMappingCommandEntity.builder()
-                        .approval(approval)
-                        .employee(memRef)
-                        .step(1)
-                        .isApproved("Y")
-                        .build();
 
         ApprovalMappingCommandEntity leaderStep =
                 ApprovalMappingCommandEntity.builder()
@@ -325,13 +414,37 @@ public class ContractCommandServiceImpl implements ContractCommandService {
                         .build();
 
         approvalMappingCommandRepository.saveAll(
-                List.of(memStep, leaderStep, ceoStep)
+                List.of(leaderStep, ceoStep)
         );
 
         contract.setCurrentStep(1);
         contract.setStatus("W");
     }
 
+    private void insertPaymentDetailsForContract(ContractCommandEntity contract) {
 
+        LocalDateTime startDate = contract.getStartDate();
+        Integer periodMonths = contract.getContractPeriod();
+
+        if (startDate == null || periodMonths == null || periodMonths <= 0) {
+            throw new BusinessException(ErrorCode.INVALID_CONTRACT_PERIOD);
+        }
+
+        List<PaymentDetailCommandEntity> rows = new ArrayList<>(periodMonths);
+
+        for (int i = 0; i < periodMonths; i++) {
+            rows.add(
+                    PaymentDetailCommandEntity.builder()
+                            .paymentDue(startDate.plusMonths(i))
+                            .paymentActual(null)
+                            .overdueDays(null)
+                            .paymentStatus("P")
+                            .contractId(contract.getId())
+                            .build()
+            );
+        }
+
+        paymentDetailCommandRepository.saveAll(rows);
+    }
 
 }

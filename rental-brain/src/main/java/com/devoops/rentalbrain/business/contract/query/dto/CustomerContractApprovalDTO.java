@@ -1,9 +1,9 @@
-package com.devoops.rentalbrain.customer.customerlist.query.dto;
+package com.devoops.rentalbrain.business.contract.query.dto;
 
 import lombok.Data;
 
 @Data
-public class CustomerContractDTO {
+public class CustomerContractApprovalDTO {
     private Long customerId;
     private String customerCode;
     private String customerName;

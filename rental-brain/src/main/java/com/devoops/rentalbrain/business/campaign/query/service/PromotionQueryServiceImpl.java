@@ -66,7 +66,7 @@ public class PromotionQueryServiceImpl implements PromotionQueryService {
     }
 
     @Override
-    public List<PromotionWithContractDTO> useContractPromotion(String segment) {
+    public List<PromotionWithContractDTO> useContractPromotion(Integer segment) {
         List<PromotionWithContractDTO> promotionList = promotionMapper.useContractPromotion(segment);
         return promotionList;
     }
