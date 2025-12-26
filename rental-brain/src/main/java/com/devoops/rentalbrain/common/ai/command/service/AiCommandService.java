@@ -1,15 +1,15 @@
 package com.devoops.rentalbrain.common.ai.command.service;
 
+import com.devoops.rentalbrain.common.ai.common.EmbeddingDTO;
 import com.openai.models.responses.Response;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
-public interface AiService {
+public interface AiCommandService {
     List<Float> embed(String input);
 
-    void indexOneDocument(String docId, String text, Map<String, Object> meta) throws IOException;
+    void indexOneDocument() throws IOException;
 
     Response answer(String q) throws IOException;
 }

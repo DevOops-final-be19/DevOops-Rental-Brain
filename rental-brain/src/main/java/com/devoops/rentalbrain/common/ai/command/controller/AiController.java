@@ -1,6 +1,7 @@
 package com.devoops.rentalbrain.common.ai.command.controller;
 
-import com.devoops.rentalbrain.common.ai.command.service.AiService;
+import com.devoops.rentalbrain.common.ai.common.EmbeddingDTO;
+import com.devoops.rentalbrain.common.ai.command.service.AiCommandService;
 import com.openai.models.responses.Response;
 import com.openai.models.responses.ResponseOutputText;
 import org.springframework.web.bind.annotation.*;
@@ -11,22 +12,28 @@ import java.util.Map;
 @RestController
 @RequestMapping("/ai")
 public class AiController {
-    private final AiService aiService;
+    private final AiCommandService aiCommandService;
 
-    public AiController(AiService aiService) {
-        this.aiService = aiService;
+    public AiController(AiCommandService aiCommandService) {
+        this.aiCommandService = aiCommandService;
     }
 
     @PostMapping("/index")
     public void index(@RequestParam String docId, @RequestBody Map<String, Object> body) throws IOException {
         String text = (String) body.get("text");
         Map<String, Object> meta = (Map<String, Object>) body.getOrDefault("meta", Map.of());
-        aiService.indexOneDocument(docId, text, meta);
+//        aiCommandService.indexOneDocument(new EmbeddingDTO());
+    }
+
+    @GetMapping("/init/index")
+    public void initIndex() throws IOException {
+
+        aiCommandService.indexOneDocument();
     }
 
     @GetMapping("/ask")
     public String ask(@RequestParam String q) throws IOException {
-        Response response = aiService.answer(q);
+        Response response = aiCommandService.answer(q);
         return response.output().stream()
                 .flatMap(item -> item.message().stream())
                 .flatMap(message -> message.content().stream())

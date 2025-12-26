@@ -1,7 +1,8 @@
 package com.devoops.rentalbrain.common.ai.command.service;
 
+import com.devoops.rentalbrain.common.ai.common.EmbeddingDTO;
 import com.devoops.rentalbrain.common.ai.command.repository.OpenSearchVectorRepository;
-import com.devoops.rentalbrain.common.ai.common.TextChunker;
+import com.devoops.rentalbrain.common.ai.query.service.AiQueryService;
 import com.openai.client.OpenAIClient;
 import com.openai.models.ChatModel;
 import com.openai.models.embeddings.CreateEmbeddingResponse;
@@ -22,14 +23,17 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class AiServiceImpl implements AiService {
+public class AiCommandCommandServiceImpl implements AiCommandService {
     private final OpenAIClient openAIClient;
     private final OpenSearchVectorRepository openSearchVectorRepository;
+    private final AiQueryService aiQueryService;
 
-    public AiServiceImpl(OpenAIClient openAIClient,
-                         OpenSearchVectorRepository openSearchVectorRepository) {
+    public AiCommandCommandServiceImpl(OpenAIClient openAIClient,
+                                       OpenSearchVectorRepository openSearchVectorRepository,
+                                       AiQueryService aiQueryService) {
         this.openAIClient = openAIClient;
         this.openSearchVectorRepository = openSearchVectorRepository;
+        this.aiQueryService = aiQueryService;
     }
 
     public List<Float> embed(String input) {
@@ -44,27 +48,34 @@ public class AiServiceImpl implements AiService {
         return res.data().get(0).embedding();
     }
 
+
+
     @Transactional(readOnly = true)
-    public void indexOneDocument(String docId, String rawText, Map<String, Object> meta) throws IOException {
-        log.info("[RAG] indexOneDocument called: docId={}", docId);
+    public void indexOneDocument() throws IOException {
+        for (EmbeddingDTO embeddingDTO : aiQueryService.getFeedBacks()) {
+            List<Float> vector = embed(embeddingDTO.getText());
 
-        List<String> chunks = TextChunker.chunkByLength(rawText, 800); // 대충 800자 단위
-
-        for (int i = 0; i < chunks.size(); i++) {
-            String chunkText = chunks.get(i);
-            List<Float> vector = embed(chunkText);
-
-            String chunkId = docId + "_" + i;
             Map<String, Object> doc = new HashMap<>();
-            doc.put("docId", docId);
-            doc.put("chunkId", chunkId);
-            doc.put("text", chunkText);
-            doc.put("vector", vector);
-            doc.put("meta", meta);
+            doc.put("chunkId", embeddingDTO.getChunkId());
+            doc.put("text", embeddingDTO.getText());
+            doc.put("embedding", vector);
+            doc.put("source", embeddingDTO.getSource());
+            doc.put("sourceId", embeddingDTO.getSourceId());
+            doc.put("customerId", embeddingDTO.getCustomerId());
+            doc.put("segments", embeddingDTO.getSegments());
+            doc.put("sentiment", embeddingDTO.getSentiment());
+            doc.put("score", embeddingDTO.getScore());
+            doc.put("category", embeddingDTO.getCategory());
+            doc.put("priority", embeddingDTO.getPriority());
+            doc.put("status", embeddingDTO.getStatus());
+            doc.put("vocab", embeddingDTO.getVocab());
+            doc.put("createAt", embeddingDTO.getCreateAt());
             log.info("indexOneDocument: {}", doc);
 
-            openSearchVectorRepository.upsertChunk(chunkId, doc);
+            openSearchVectorRepository.upsertChunk(embeddingDTO.getChunkId(), doc);
         }
+
+
     }
 
     public List<String> retrieveTopK(String question, int k) throws IOException {

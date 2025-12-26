@@ -17,14 +17,14 @@ import java.util.Map;
 @Slf4j
 public class OpenSearchVectorRepository {
     private final OpenSearchClient client;
-    private final String indexName = "customer_feedback_rag";
+    private final String indexName = "rag_customer_interactions_v1";
 
     public OpenSearchVectorRepository(OpenSearchClient client) {
         this.client = client;
     }
 
     public void upsertChunk(String id, Map<String, Object> doc) throws IOException {
-        IndexRequest<Map<String, Object>> req = IndexRequest.of(i -> i
+        IndexRequest req = IndexRequest.of(i -> i
                 .index(indexName)
                 .id(id)
                 .document(doc)
@@ -39,14 +39,14 @@ public class OpenSearchVectorRepository {
         }
 
         KnnQuery knn = KnnQuery.of(q -> q
-                .field("vector")
+                .field("embedding")
                 .vector(queryVectorList)
                 .k(k)
         );
 
         SearchRequest req = SearchRequest.of(s -> s
                 .index(indexName)
-                .source(SourceConfig.of(sc -> sc.filter(f -> f.includes("text", "docId", "chunkId", "meta"))))
+                .source(SourceConfig.of(sc -> sc.filter(f -> f.includes("text", "chunkId", "metadata"))))
                 .query(q -> q.knn(knn))
         );
 
