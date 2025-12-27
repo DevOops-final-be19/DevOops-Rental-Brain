@@ -18,7 +18,7 @@ public class OpenSearchConfig {
 
         // OpenSearch 전용 RestClient
         RestClient restClient = RestClient.builder(
-                new org.apache.http.HttpHost(host, port,"http")
+                new org.apache.http.HttpHost(host, port, "http")
         ).build();
 
         // Jackson mapper

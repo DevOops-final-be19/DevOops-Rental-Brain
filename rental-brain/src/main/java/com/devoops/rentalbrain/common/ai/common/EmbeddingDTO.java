@@ -2,6 +2,8 @@ package com.devoops.rentalbrain.common.ai.common;
 
 import lombok.*;
 
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -19,8 +21,6 @@ public class EmbeddingDTO {
     private String category;
     private Integer priority = null;
     private String status = null;
-    private String[] vocab = null;
+    private List<String> vocab = null;
     private String createAt;
-
-
 }

@@ -1,5 +1,6 @@
 package com.devoops.rentalbrain.common.ai.command.controller;
 
+import com.devoops.rentalbrain.common.ai.command.dto.KeywordCountDTO;
 import com.devoops.rentalbrain.common.ai.common.EmbeddingDTO;
 import com.devoops.rentalbrain.common.ai.command.service.AiCommandService;
 import com.openai.models.responses.Response;
@@ -7,6 +8,7 @@ import com.openai.models.responses.ResponseOutputText;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,7 +30,7 @@ public class AiController {
     @GetMapping("/init/index")
     public void initIndex() throws IOException {
 
-        aiCommandService.indexOneDocument();
+        aiCommandService.indexDocument();
     }
 
     @GetMapping("/ask")
@@ -40,5 +42,15 @@ public class AiController {
                 .flatMap(content -> content.outputText().stream())
                 .map(ResponseOutputText::text)
                 .reduce("",(a,b)->a+b);
+    }
+
+    @GetMapping("/keyword/negative")
+    public List<KeywordCountDTO> top3Negative() throws IOException {
+        return aiCommandService.getTop3NegativeKeywords();
+    }
+
+    @GetMapping("/keyword/positive")
+    public List<KeywordCountDTO> top3Positive() throws IOException {
+        return aiCommandService.getTop3PositiveKeywords();
     }
 }

@@ -36,6 +36,7 @@ public class AiQueryService {
                     embeddingDTO.setSourceId(fb.getFeedBackCode());
                     embeddingDTO.setCustomerId(fb.getCumId());
                     embeddingDTO.setSegments(fb.getSegmentName());
+                    embeddingDTO.setScore(fb.getStar());
                     embeddingDTO.setCategory(fb.getCategoryName());
                     embeddingDTO.setCreateAt(fb.getCreateDate());
                     return embeddingDTO;
